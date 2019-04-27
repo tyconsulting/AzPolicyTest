@@ -3,17 +3,10 @@ Param (
 	[Parameter(Mandatory=$true)][validateScript({Test-Path $_})][string]$Path
 )
 Write-Verbose "Path: '$Path'"
-#region variables
+#variables
 $TestName = "Policy Definition Syntax Test"
-$requiredElements = New-object System.Collections.ArrayList
-$requiredProperties = New-Object System.Collections.ArrayList
-$optionalElements = New-Object System.Collections.ArrayList
-[void]$requiredElements.Add('type')
-[void]$requiredElements.Add('name')
-[void]$requiredElements.Add('properties')
-[void]$requiredProperties.Add('displayName')
-[void]$requiredProperties.Add('description')
-#endregion
+
+#Get JSON files
 if ((Get-Item $path).PSIsContainer)
 {
     Write-Verbose "Specified path '$path' is a directory"
@@ -66,13 +59,13 @@ Foreach ($file in $files)
                 $json.properties.PSobject.Properties.name -match 'policyRule' | Should Not Be $Null
             }
             It "'DisplayName' value must not be blank" {
-                $json.properties.displayName.length | Should Not Be 0
+                $json.properties.displayName.length | Should BeGreaterThan 0
             }
             It "'Description' value must not be blank" {
-                $json.properties.description.length | Should Not Be 0
+                $json.properties.description.length | Should BeGreaterThan 0
             }
             It "Must contain 'Category' metadata" {
-                $json.properties.metadata.category.length| Should Not Be 0
+                $json.properties.metadata.category.length | Should BeGreaterThan 0
             }
         }
         Context "Policy Rule Test" {
@@ -102,7 +95,7 @@ Foreach ($file in $files)
                     $json.properties.policyRule.then.details.PSobject.Properties.name -match 'roleDefinitionIds' | Should Not Be $Null
                 }
                 It "'roleDefinitionIds' element must contain at least one item" {
-                    $json.properties.policyRule.then.details.roleDefinitionIds.count | Should -BeGreaterThan 0
+                    $json.properties.policyRule.then.details.roleDefinitionIds.count | Should BeGreaterThan 0
                 }
             }
             Context "DeployIfNotExists Embedded ARM Template Test" {
@@ -110,7 +103,7 @@ Foreach ($file in $files)
                     $json.properties.policyRule.then.details.deployment.properties.template."`$schema" | Should -BeLike 'http://schema.management.azure.com/schemas/*'
                 }
                 It 'Embedded template Must contain a valid contentVersion' {
-                    $json.properties.policyRule.then.details.deployment.properties.template.contentVersion | Should -BeGreaterThan ([version]'0.0.0.1')
+                    $json.properties.policyRule.then.details.deployment.properties.template.contentVersion | Should BeGreaterThan ([version]'0.0.0.1')
                 }
                 It "Embedded template Must contain a 'parameters' element" {
                     $json.properties.policyRule.then.details.deployment.properties.template.PSobject.Properties.name -match 'parameters' | Should Not Be $Null
