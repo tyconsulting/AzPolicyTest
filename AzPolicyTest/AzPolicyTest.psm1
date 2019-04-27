@@ -1,3 +1,4 @@
+# .EXTERNALHELP AzPolicyTest.psm1-Help.xml
 Function Test-JSONContent
 {
   [CmdLetBinding()]
@@ -25,6 +26,8 @@ Function Test-JSONContent
     Write-Error "File content test failed."
   }
 }
+
+# .EXTERNALHELP AzPolicyTest.psm1-Help.xml
 Function Test-AzPolicyDefinition
 {
   [CmdLetBinding()]
@@ -53,6 +56,7 @@ Function Test-AzPolicyDefinition
   }
 }
 
+# .EXTERNALHELP AzPolicyTest.psm1-Help.xml
 Function Test-AzPolicySetDefinition
 {
   [CmdLetBinding()]
