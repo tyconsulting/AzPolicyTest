@@ -11,7 +11,7 @@ Function Test-JSONContent
 		[Parameter(ParameterSetName = 'ProduceOutputFile', Mandatory=$false)][ValidateSet('NUnitXml', 'LegacyNUnitXML')][string]$OutputFormat='NUnitXml'
   )
   #Test files
-  $FileContentTestFilePath = Join-Path $PSScriptRoot '\common-tests\fileContent.tests.ps1'
+  $FileContentTestFilePath = Join-Path $PSScriptRoot 'fileContent.tests.ps1'
 
   #File Content tests
   If ($PSCmdlet.ParameterSetName -eq 'ProduceOutputFile')
@@ -40,7 +40,7 @@ Function Test-AzPolicyDefinition
     [Parameter(ParameterSetName = 'ProduceOutputFile', Mandatory=$false)][ValidateSet('NUnitXml', 'LegacyNUnitXML')][string]$OutputFormat='NUnitXml'
   )
   #Test files
-  $DefinitionStructureTestFilePath = join-path $PSScriptRoot '\policy-tests\policyDefStructure.tests.ps1'
+  $DefinitionStructureTestFilePath = join-path $PSScriptRoot 'policyDefStructure.tests.ps1'
   Write-Verbose "Testing '$definitionFile'..."
   #File Content tests
   If ($PSCmdlet.ParameterSetName -eq 'ProduceOutputFile')
@@ -69,7 +69,7 @@ Function Test-AzPolicySetDefinition
     [Parameter(ParameterSetName = 'ProduceOutputFile', Mandatory=$false)][ValidateSet('NUnitXml', 'LegacyNUnitXML')][string]$OutputFormat='NUnitXml'
   )
   #Test files
-  $DefinitionStructureTestFilePath = join-path $PSScriptRoot '\policySet-tests\policySetDefStructure.tests.ps1'
+  $DefinitionStructureTestFilePath = join-path $PSScriptRoot 'policySetDefStructure.tests.ps1'
   Write-Verbose "Testing '$definitionFile'..."
   #File Content tests
   If ($PSCmdlet.ParameterSetName -eq 'ProduceOutputFile')
