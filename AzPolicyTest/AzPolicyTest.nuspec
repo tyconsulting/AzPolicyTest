@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package >
+    <metadata>
+        <id>AzPolicyTest</id>
+        <version>1.0.0</version>
+        <authors>Tao Yang</authors>
+        <owners>TY Consulting Pty Ltd</owners>
+        <description>Provides pre-defined pester tests for Azure Policy and Initiative definitions</description>
+        <releaseNotes></releaseNotes>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <copyright>(c) 2019 TY Consulting Pty Ltd. All rights reserved.</copyright>
+        <tags>Azure Azure Policy Pester PSModule PSIncludes_Function PSFunction_Test-AzPolicyDefinition PSFunction_Test-AzPolicySetDefinition PSFunction_Test-JSONContent PSCommand_Test-AzPolicyDefinition PSCommand_Test-AzPolicySetDefinition PSCommand_Test-JSONContent</tags>
+        <licenseUrl>https://github.com/tyconsulting/AzPolicyTest/blob/master/LICENSE</licenseUrl>
+        <projectUrl>https://github.com/tyconsulting/AzPolicyTest</projectUrl>
+        
+        <dependencies>
+            <dependency id='pester' version='4.7.0' />
+        </dependencies>
+    </metadata>
+</package>
