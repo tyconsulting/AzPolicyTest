@@ -76,7 +76,7 @@ Foreach ($file in $files)
                 $json.properties.policyRule.PSobject.Properties.name -match 'then' | Should Not Be $Null
             }
             It "Policy Rule must use a valid effect" {
-                'Deny', 'Audit', 'Append', 'AuditIfNotExists', 'DeployIfNotExists', 'Disabled' -match $json.properties.policyRule.then.effect  | Should Not Be $Null
+                'Modify', 'Deny', 'Audit', 'Append', 'AuditIfNotExists', 'DeployIfNotExists', 'Disabled' -match $json.properties.policyRule.then.effect  | Should Not Be $Null
             }
         }
         if ($json.properties.policyRule.then.effect -ieq 'DeployIfNotExists')
