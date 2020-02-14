@@ -27,6 +27,7 @@ Foreach ($file in $files)
 		Context "JSON Syntax Test" {
 			It 'Should be a valid JSON file' {
 				$fileContent = Get-Content -Path $file -Raw
+				$fileContent = $fileContent -replace '(?m)(?<=^([^"]|"[^"]*")*)//.*' -replace '(?ms)/\*.*?\*/'
 				ConvertFrom-Json -InputObject $fileContent -ErrorVariable parseError
 				$parseError | Should Be $Null
 			}
