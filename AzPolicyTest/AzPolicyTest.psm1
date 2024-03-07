@@ -1,86 +1,111 @@
 # .EXTERNALHELP AzPolicyTest.psm1-Help.xml
-Function Test-JSONContent
-{
+Function Test-JSONContent {
   [CmdLetBinding()]
   Param (
     [Parameter(Mandatory = $true, ValueFromPipeline = $true, ParameterSetName = 'ProduceOutputFile', HelpMessage = 'Specify the file paths for the policy definition files.')]
     [Parameter(Mandatory = $true, ValueFromPipeline = $true, ParameterSetName = 'NoOutputFile', HelpMessage = 'Specify the file paths for the policy definition files.')]
     [String]$path,
 
-    [Parameter(ParameterSetName = 'ProduceOutputFile', Mandatory=$true)][ValidateNotNullOrEmpty()][string]$OutputFile,
-		[Parameter(ParameterSetName = 'ProduceOutputFile', Mandatory=$false)][ValidateSet('NUnitXml', 'LegacyNUnitXML')][string]$OutputFormat='NUnitXml'
+    [Parameter(ParameterSetName = 'ProduceOutputFile', Mandatory = $true)][ValidateNotNullOrEmpty()][string]$OutputFile,
+    [Parameter(ParameterSetName = 'ProduceOutputFile', Mandatory = $false)][ValidateSet('NUnitXml', 'LegacyNUnitXML')][string]$OutputFormat = 'NUnitXml'
   )
   #Test files
   $FileContentTestFilePath = Join-Path $PSScriptRoot 'fileContent.tests.ps1'
-
+  Write-Verbose "JSON Content Pester Test file Path: '$DefinitionStructureTestFilePath'" -verbose
+  $testContainerData = @{
+    path = $path
+  }
+  $config = @{
+    Run = @{
+      Container = New-PesterContainer -Path $FileContentTestFilePath -Data $testContainerData
+      PassThru = $true
+    }
+    TestResult = @{
+      TestSuiteName = 'Json Content Tests'
+      Enabled = $true
+    }
+    Output     = @{
+      Verbosity = 'Detailed'
+    }
+    Should = @{
+        ErrorAction = 'Continue'
+    }
+  }
   #File Content tests
-  If ($PSCmdlet.ParameterSetName -eq 'ProduceOutputFile')
-  {
-    #Common - File content tests
-    $FileContentTestResult = Invoke-Pester -script @{path = $FileContentTestFilePath; Parameters=@{path = $path}} -OutputFile $OutputFile -OutputFormat $OutputFormat -PassThru
-  } else {
-    $FileContentTestResult = Invoke-Pester -script @{path = $FileContentTestFilePath; Parameters=@{path = $path}} -PassThru
+  If ($PSCmdlet.ParameterSetName -eq 'ProduceOutputFile') {
+    $config.TestResult.Add('OutputFormat', $OutputFormat)
+    $config.TestResult.Add('OutputPath', $OutputFile)
   }
-  if ($FileContentTestResult.TestResult.Result -ieq 'failed')
-  {
-    Write-Error "File content test failed."
-  }
+
+  Invoke-Pester -Configuration $config
 }
 
 # .EXTERNALHELP AzPolicyTest.psm1-Help.xml
-Function Test-AzPolicyDefinition
-{
+Function Test-AzPolicyDefinition {
   [CmdLetBinding()]
   Param (
     [Parameter(Mandatory = $true, ValueFromPipeline = $true, ParameterSetName = 'ProduceOutputFile', HelpMessage = 'Specify the file paths for the policy definition files.')]
     [Parameter(Mandatory = $true, ValueFromPipeline = $true, ParameterSetName = 'NoOutputFile', HelpMessage = 'Specify the file paths for the policy definition files.')]
     [String]$path,
 
-    [Parameter(ParameterSetName = 'ProduceOutputFile', Mandatory=$true)][ValidateNotNullOrEmpty()][string]$OutputFile,
-    [Parameter(ParameterSetName = 'ProduceOutputFile', Mandatory=$false)][ValidateSet('NUnitXml', 'LegacyNUnitXML')][string]$OutputFormat='NUnitXml'
+    [Parameter(ParameterSetName = 'ProduceOutputFile', Mandatory = $true)][ValidateNotNullOrEmpty()][string]$OutputFile,
+    [Parameter(ParameterSetName = 'ProduceOutputFile', Mandatory = $false)][ValidateSet('NUnitXml', 'LegacyNUnitXML')][string]$OutputFormat = 'NUnitXml'
   )
   #Test files
   $DefinitionStructureTestFilePath = join-path $PSScriptRoot 'policyDefStructure.tests.ps1'
-  Write-Verbose "Testing '$definitionFile'..."
+  Write-Verbose "Policy Definition Pester Test file Path: '$DefinitionStructureTestFilePath'" -verbose
+
+  $testContainerData = @{
+    path = $path
+  }
+  $config = @{
+    Run = @{
+      Container = New-PesterContainer -Path $DefinitionStructureTestFilePath -Data $testContainerData
+      PassThru = $true
+    }
+    TestResult = @{
+      TestSuiteName = 'Policy Definition Tests'
+      Enabled = $true
+    }
+    Output     = @{
+      Verbosity = 'Detailed'
+    }
+    Should = @{
+      ErrorAction = 'Continue'
+    }
+  }
+
   #File Content tests
-  If ($PSCmdlet.ParameterSetName -eq 'ProduceOutputFile')
-  {
+  If ($PSCmdlet.ParameterSetName -eq 'ProduceOutputFile') {
     #Common - File content tests
-    $DefinitionStructureTestResult = Invoke-Pester -script @{path = $DefinitionStructureTestFilePath; Parameters=@{path = $path}} -OutputFile $OutputFile -OutputFormat $OutputFormat -PassThru
-  } else {
-    $DefinitionStructureTestResult = Invoke-Pester -script @{path = $DefinitionStructureTestFilePath; Parameters=@{path = $path}} -PassThru
+    $config.TestResult.Add('OutputFormat', $OutputFormat)
+    $config.TestResult.Add('OutputPath', $OutputFile)
   }
-  if ($DefinitionStructureTestResult.TestResult.Result -ieq 'failed')
-  {
-    Write-Error "Policy Definition Syntax test failed."
-  }
+
+  Invoke-Pester -Configuration $config
 }
 
 # .EXTERNALHELP AzPolicyTest.psm1-Help.xml
-Function Test-AzPolicySetDefinition
-{
+Function Test-AzPolicySetDefinition {
   [CmdLetBinding()]
   Param (
     [Parameter(Mandatory = $true, ValueFromPipeline = $true, ParameterSetName = 'ProduceOutputFile', HelpMessage = 'Specify the file paths for the policy definition files.')]
     [Parameter(Mandatory = $true, ValueFromPipeline = $true, ParameterSetName = 'NoOutputFile', HelpMessage = 'Specify the file paths for the policy definition files.')]
     [String]$path,
 
-    [Parameter(ParameterSetName = 'ProduceOutputFile', Mandatory=$true)][ValidateNotNullOrEmpty()][string]$OutputFile,
-    [Parameter(ParameterSetName = 'ProduceOutputFile', Mandatory=$false)][ValidateSet('NUnitXml', 'LegacyNUnitXML')][string]$OutputFormat='NUnitXml'
+    [Parameter(ParameterSetName = 'ProduceOutputFile', Mandatory = $true)][ValidateNotNullOrEmpty()][string]$OutputFile,
+    [Parameter(ParameterSetName = 'ProduceOutputFile', Mandatory = $false)][ValidateSet('NUnitXml', 'LegacyNUnitXML')][string]$OutputFormat = 'NUnitXml'
   )
   #Test files
   $DefinitionStructureTestFilePath = join-path $PSScriptRoot 'policySetDefStructure.tests.ps1'
-  Write-Verbose "Testing '$definitionFile'..."
   #File Content tests
-  If ($PSCmdlet.ParameterSetName -eq 'ProduceOutputFile')
-  {
+  If ($PSCmdlet.ParameterSetName -eq 'ProduceOutputFile') {
     #Common - File content tests
-    $DefinitionStructureTestResult = Invoke-Pester -script @{path = $DefinitionStructureTestFilePath; Parameters=@{path = $path}} -OutputFile $OutputFile -OutputFormat $OutputFormat -PassThru
+    $DefinitionStructureTestResult = Invoke-Pester -script @{path = $DefinitionStructureTestFilePath; Parameters = @{path = $path } } -OutputFile $OutputFile -OutputFormat $OutputFormat -PassThru
   } else {
-    $DefinitionStructureTestResult = Invoke-Pester -script @{path = $DefinitionStructureTestFilePath; Parameters=@{path = $path}} -PassThru
+    $DefinitionStructureTestResult = Invoke-Pester -script @{path = $DefinitionStructureTestFilePath; Parameters = @{path = $path } } -PassThru
   }
-  if ($DefinitionStructureTestResult.TestResult.Result -ieq 'failed')
-  {
+  if ($DefinitionStructureTestResult.TestResult.Result -ieq 'failed') {
     Write-Error "Policy Set Definition Syntax test failed."
   }
 }
