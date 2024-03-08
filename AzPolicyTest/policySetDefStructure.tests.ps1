@@ -6,6 +6,16 @@ Write-Verbose "Path: '$Path'"
 #variables
 $TestName = "Policy Set Definition Syntax Test"
 
+$global:validParameterTypes = @(
+  'string',
+  'array',
+  'object',
+  'boolean',
+  'integer',
+  'float',
+  'datetime'
+)
+
 #Get JSON files
 if ((Get-Item $path).PSIsContainer) {
   Write-Verbose "Specified path '$path' is a directory"
@@ -16,68 +26,260 @@ if ((Get-Item $path).PSIsContainer) {
 }
 
 Foreach ($file in $files) {
-  Write-Verbose "Test '$file'"
-  Describe "$TestName for '$file'" {
+  Write-Verbose "Test '$file'" -verbose
+  $fileName = (get-item $file).name
+  $json = ConvertFrom-Json -InputObject (Get-Content -Path $file -Raw) -ErrorAction SilentlyContinue
+  $testCase = @{
+    fileName = $fileName
+    json     = $json
+  }
+  Describe "[$fileName]: $TestName" -Tag "policyDefSyntax" {
 
-    $fileContent = Get-Content -Path $file -Raw
-    $json = ConvertFrom-Json -InputObject $fileContent -ErrorAction SilentlyContinue
-    Context "Required Top-Level Elements Test" {
-      It "Should contain top-level element - name" {
-        $json.PSobject.Properties.name -match 'name' | Should Not Be $Null
+    Context "Required Top-Level Elements Test" -Tag "TopLevelElements" {
+
+      It "Should contain top-level element - name" -TestCases $testCase {
+        param(
+          [object] $json
+        )
+        $json.PSobject.Properties.name -match 'name' | Should -Not -Be $Null
       }
-      It "Should contain top-level element - properties" {
-        $json.PSobject.Properties.name -match 'properties' | Should Not Be $Null
-      }
-    }
-    Context "Policy Set Definition Elements Value Test" {
-      It "Name value must not be null" {
-        $json.name.length | Should BeGreaterThan 0
-      }
-      It "Name value must not be longer than 64 characters" {
-        $json.name.length | Should BeLessOrEqual 64
-      }
-      It "Name value must not contain spaces" {
-        $json.name -match ' ' | Should Be $false
+
+      It "Should contain top-level element - properties" -TestCases $testCase {
+        param(
+          [object] $json
+        )
+        $json.PSobject.Properties.name -match 'properties' | Should -Not -Be $Null
       }
     }
-    Context "Policy Definition Properties Value Test" {
-      It "Properties must contain 'displayName' element" {
-        $json.properties.PSobject.Properties.name -match 'displayName' | Should Not Be $Null
+
+    Context "Policy Set Definition Elements Value Test" -Tag 'PolicySetElements' {
+
+      It "Name value must not be null" -TestCases $testCase {
+        param(
+          [object] $json
+        )
+        $json.name.length | Should -BeGreaterThan 0
       }
-      It "Properties must contain 'description' element" {
-        $json.properties.PSobject.Properties.name -match 'description' | Should Not Be $Null
+
+      It "Name value must not be longer than 64 characters" -TestCases $testCase {
+        param(
+          [object] $json
+        )
+        $json.name.length | Should -BeLessOrEqual 64
       }
-      It "Properties must contain 'metadata' element" {
-        $json.properties.PSobject.Properties.name -match 'metadata' | Should Not Be $Null
+
+      It "Name value must not contain spaces" -TestCases $testCase {
+        param(
+          [object] $json
+        )
+        $json.name -match ' ' | Should -Be $false
       }
-      It "Properties must contain 'parameters' element" {
-        $json.properties.PSobject.Properties.name -match 'parameters' | Should Not Be $Null
+    }
+
+    Context "Policy Definition Properties Value Test" -Tag 'PolicySetProperties' {
+
+      It "Properties must contain 'displayName' element" -TestCases $testCase {
+        param(
+          [object] $json
+        )
+        $json.properties.PSobject.Properties.name -match 'displayName' | Should -Not -Be $Null
       }
-      It "Properties must contain 'policyDefinitions' element" {
-        $json.properties.PSobject.Properties.name -match 'policyDefinitions' | Should Not Be $Null
+
+      It "Properties must contain 'description' element" -TestCases $testCase {
+        param(
+          [object] $json
+        )
+        $json.properties.PSobject.Properties.name -match 'description' | Should -Not -Be $Null
       }
-      It "'policyDefinitions' element must contain at least one item" {
+
+      It "Properties must contain 'metadata' element" -TestCases $testCase {
+        param(
+          [object] $json
+        )
+        $json.properties.PSobject.Properties.name -match 'metadata' | Should -Not -Be $Null
+      }
+
+      It "Properties must contain 'parameters' element" -TestCases $testCase {
+        param(
+          [object] $json
+        )
+        $json.properties.PSobject.Properties.name -match 'parameters' | Should -Not -Be $Null
+      }
+
+      It "'parameters' element must contain at least one item" -TestCases $testCase {
+        param(
+          [object] $json
+        )
+        $json.properties.parameters.PSObject.Properties.count | Should -BeGreaterThan 0
+      }
+
+      It "Properties must contain 'policyDefinitions' element" -TestCases $testCase {
+        param(
+          [object] $json
+        )
+        $json.properties.PSobject.Properties.name -match 'policyDefinitions' | Should -Not -Be $Null
+      }
+
+      It "'policyDefinitions' element must contain at least one item" -TestCases $testCase {
+        param(
+          [object] $json
+        )
         $json.properties.policyDefinitions.count | Should -BeGreaterThan 0
       }
-      It "'DisplayName' value must not be blank" {
-        $json.properties.displayName.length | Should BeGreaterThan 0
+
+      It "Properties must contain 'policyDefinitionGroups' element" -TestCases $testCase {
+        param(
+          [object] $json
+        )
+        $json.properties.PSobject.Properties.name -match 'policyDefinitionGroups' | Should -Not -Be $Null
       }
-      It "'Description' value must not be blank" {
-        $json.properties.description.length | Should BeGreaterThan 0
+
+      It "'policyDefinitionGroups' element must contain at least one item" -TestCases $testCase {
+        param(
+          [object] $json
+        )
+        $json.properties.policyDefinitionGroups.count | Should -BeGreaterThan 0
       }
-      It "Must contain 'Category' metadata" {
-        $json.properties.metadata.category.length | Should BeGreaterThan 0
+
+      It "'DisplayName' value must not be blank" -TestCases $testCase {
+        param(
+          [object] $json
+        )
+        $json.properties.displayName.length | Should -BeGreaterThan 0
+      }
+
+      It "'Description' value must not be blank" -TestCases $testCase {
+        param(
+          [object] $json
+        )
+        $json.properties.description.length | Should -BeGreaterThan 0
+      }
+
+      It "Must contain 'Category' metadata" -TestCases $testCase {
+        param(
+          [object] $json
+        )
+        $json.properties.metadata.category.length | Should -BeGreaterThan 0
+      }
+
+      It "Must contain 'Version' metadata" -TestCases $testCase {
+        param(
+          [object] $json
+        )
+        $json.properties.metadata.version.length | Should -BeGreaterThan 0
+      }
+
+      It "'Version' metadata value must be a valid semantic version" -TestCases $testCase {
+        param(
+          [object] $json
+        )
+        $json.properties.metadata.version -match '^\d+\.\d+.\d+$' | Should -Be $true
       }
     }
-    Context "policy Definitions Test" {
+
+    Context "Parameters Tests" -Tag 'Parameters'{
+      Foreach ($parameterName in $json.properties.parameters.PSObject.Properties.Name) {
+        $parameterConfig = $json.properties.parameters.$parameterName
+        $parameterTestCase = @{
+          parameterName = $parameterName
+          parameterConfig = $parameterConfig
+        }
+
+        It "Parameter [<parameterName>] must contain 'type' element" -TestCases $parameterTestCase {
+          param(
+            [string] $parameterName,
+            [object] $parameterConfig
+          )
+          $parameterConfig.PSobject.Properties.name -match 'type' | Should -Not -Be $null
+        }
+
+        It "Parameter [<parameterName>] must have a valid value for the 'type' element" -TestCases $parameterTestCase {
+          param(
+            [string] $parameterName,
+            [object] $parameterConfig
+          )
+          $global:validParameterTypes -contains $parameterConfig.type.tolower() | Should -Be $true
+        }
+
+        It "Parameter [<parameterName>] metadata must contain 'displayName' element" -TestCases $parameterTestCase {
+          param(
+            [string] $parameterName,
+            [object] $parameterConfig
+          )
+          $parameterConfig.metadata.PSobject.Properties.name -match 'displayName' | Should -Not -Be $null
+        }
+
+        It "Parameter [<parameterName>] metadata must contain 'description' element" -TestCases $parameterTestCase {
+          param(
+            [string] $parameterName,
+            [object] $parameterConfig
+          )
+          $parameterConfig.metadata.PSobject.Properties.name -match 'description' | Should -Not -Be $null
+        }
+      }
+    }
+
+    Context "Policy Definitions Test" -Tag 'PolicyDefinitions' {
       $i = 0
       Foreach ($policyDefinition in $json.properties.policyDefinitions) {
         $i++
-        It "Policy Definition #$i must contain 'policyDefinitionId' element" {
-          $policyDefinition.PSobject.properties.name -match 'policyDefinitionId' | Should Not Be $null
+        $policyDefinitionTestCase = @{
+          policyDefinition = $policyDefinition
         }
-        It "'policyDefinitionId' in Policy Definition #$i must contain value" {
-          $policyDefinition.policyDefinitionId.length | Should BeGreaterThan 0
+
+        It "Policy Definition #$i must contain 'policyDefinitionId' element" -TestCases $policyDefinitionTestCase {
+          param(
+            [object] $policyDefinition
+          )
+          $policyDefinition.PSobject.properties.name -match 'policyDefinitionId' | Should -Not -Be $null
+        }
+
+        It "'policyDefinitionId' in Policy Definition #$i must contain value" -TestCases $policyDefinitionTestCase {
+          param(
+            [object] $policyDefinition
+          )
+          $policyDefinition.policyDefinitionId.length | Should -BeGreaterThan 0
+        }
+
+        It "Policy Definition #$i must contain 'policyDefinitionReferenceId' element" -TestCases $policyDefinitionTestCase {
+          param(
+            [object] $policyDefinition
+          )
+          $policyDefinition.PSobject.properties.name -match 'policyDefinitionReferenceId' | Should -Not -Be $null
+        }
+
+        It "'policyDefinitionReferenceId' in Policy Definition #$i must contain value" -TestCases $policyDefinitionTestCase {
+          param(
+            [object] $policyDefinition
+          )
+          $policyDefinition.policyDefinitionReferenceId.length | Should -BeGreaterThan 0
+        }
+
+        It "Policy Definition #$i must contain 'parameters' element" -TestCases $policyDefinitionTestCase {
+          param(
+            [object] $policyDefinition
+          )
+          $policyDefinition.PSobject.properties.name -match 'parameters' | Should -Not -Be $null
+        }
+        It "'parameters' in Policy Definition #$i must contain at least one item" -TestCases $policyDefinitionTestCase {
+          param(
+            [object] $policyDefinition
+          )
+          $policyDefinition.parameters.PSObject.Properties.count | Should -BeGreaterThan 0
+        }
+
+        It "Policy Definition #$i must contain 'groupNames' element" -TestCases $policyDefinitionTestCase {
+          param(
+            [object] $policyDefinition
+          )
+          $policyDefinition.PSobject.properties.name -match 'groupNames' | Should -Not -Be $null
+        }
+
+        It "'groupNames' in Policy Definition #$i must contain at least one item" -TestCases $policyDefinitionTestCase {
+          param(
+            [object] $policyDefinition
+          )
+          $policyDefinition.groupNames.count | Should -BeGreaterThan 0
         }
       }
     }

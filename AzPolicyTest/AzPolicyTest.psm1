@@ -98,14 +98,34 @@ Function Test-AzPolicySetDefinition {
   )
   #Test files
   $DefinitionStructureTestFilePath = join-path $PSScriptRoot 'policySetDefStructure.tests.ps1'
+  Write-Verbose "Policy Initiative Pester Test file Path: '$DefinitionStructureTestFilePath'" -verbose
+
+  $testContainerData = @{
+    path = $path
+  }
+  $config = @{
+    Run = @{
+      Container = New-PesterContainer -Path $DefinitionStructureTestFilePath -Data $testContainerData
+      PassThru = $true
+    }
+    TestResult = @{
+      TestSuiteName = 'Policy Initiative Tests'
+      Enabled = $true
+    }
+    Output     = @{
+      Verbosity = 'Detailed'
+    }
+    Should = @{
+      ErrorAction = 'Continue'
+    }
+  }
+
   #File Content tests
   If ($PSCmdlet.ParameterSetName -eq 'ProduceOutputFile') {
     #Common - File content tests
-    $DefinitionStructureTestResult = Invoke-Pester -script @{path = $DefinitionStructureTestFilePath; Parameters = @{path = $path } } -OutputFile $OutputFile -OutputFormat $OutputFormat -PassThru
-  } else {
-    $DefinitionStructureTestResult = Invoke-Pester -script @{path = $DefinitionStructureTestFilePath; Parameters = @{path = $path } } -PassThru
+    $config.TestResult.Add('OutputFormat', $OutputFormat)
+    $config.TestResult.Add('OutputPath', $OutputFile)
   }
-  if ($DefinitionStructureTestResult.TestResult.Result -ieq 'failed') {
-    Write-Error "Policy Set Definition Syntax test failed."
-  }
+
+  Invoke-Pester -Configuration $config
 }
