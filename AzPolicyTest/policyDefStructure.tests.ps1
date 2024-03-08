@@ -79,9 +79,6 @@ $global:validParameterTypes = @(
   'float',
   'datetime'
 )
-$policyDefinitionJsonSchemaFile = join-path $PSScriptRoot 'schemas' 'policyDefinition.json' -Resolve
-
-$global:policyDefinitionJsonSchema = Get-Content -Path $policyDefinitionJsonSchemaFile -Raw
 
 #Get JSON files
 if ((Get-Item $path).PSIsContainer) {
