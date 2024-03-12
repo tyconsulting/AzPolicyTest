@@ -10,7 +10,7 @@ function GetPolicyEffect {
   param(
     [object] $policyObject
   )
-  $parameterRegex = "^\[parameters\(\'(\S+)\'\)\]$"
+  $parameterRegex = "^\[{1,2}parameters\(\'(\S+)\'\)\]$"
   $effect = $policyObject.properties.policyRule.then.effect
   #check if the effect is a parameterised value
   if ($effect -imatch $parameterRegex) {
