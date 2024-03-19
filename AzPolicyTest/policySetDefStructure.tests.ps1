@@ -74,6 +74,13 @@ Foreach ($file in $files) {
         )
         $json.name -match ' ' | Should -Be $false
       }
+
+      It "Name value must not contain forbidden characters" -TestCases $testCase {
+        param(
+          [object] $json
+        )
+        $json.name -match '[<>*%&:\\?.+\/]' | Should -Be $false
+      }
     }
 
     Context "Policy Definition Properties Value Test" -Tag 'PolicySetProperties' {
@@ -83,6 +90,13 @@ Foreach ($file in $files) {
           [object] $json
         )
         $json.properties.PSobject.Properties.name -match 'displayName' | Should -Not -Be $Null
+      }
+
+      It "'DisplayName' value must not be longer than 128 characters" -TestCases $testCase {
+        param(
+          [object] $json
+        )
+        $json.properties.displayName.length | Should -BeLessOrEqual 128
       }
 
       It "Properties must contain 'description' element" -TestCases $testCase {
