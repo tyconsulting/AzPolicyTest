@@ -19,11 +19,12 @@ $script:fileCountTestCase = @{
 $script:jsonFilesTestCases = [System.Collections.ArrayList]@()
 foreach ($file in $files) {
   $script:jsonFilesTestCases += @{
-    fileName  = (get-item $file).name
-    filePath = (get-item $file).FullName
+    fileName         = (get-item $file).name
+    filePath         = (get-item $file).FullName
+    fileRelativePath = GetRelativeFilePath -path (get-item $file).FullName
   }
 }
-Describe "File Existence Test" {
+Describe "File Existence Test" -Tag 'JsonFileExists' {
   Context "JSON files Should Exist" {
     It 'File count should be greater than 0' -TestCases $script:fileCountTestCase {
       param($files)
@@ -32,9 +33,9 @@ Describe "File Existence Test" {
   }
 }
 
-Describe "JSON File Syntax Test" {
+Describe "JSON File Syntax Test" -Tag 'JsonSyntax' {
   Context "JSON Syntax Test" {
-    It '[<fileName>] Should be a valid JSON file' -TestCases $script:jsonFilesTestCases {
+    It '[<fileRelativePath>] Should be a valid JSON file' -TestCases $script:jsonFilesTestCases {
       param($fileName, $filePath)
       $fileContent = Get-Content -Path $filePath -Raw
       ConvertFrom-Json -InputObject $fileContent -ErrorVariable parseError
