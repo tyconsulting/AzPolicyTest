@@ -93,6 +93,7 @@ if ((Get-Item $path).PSIsContainer) {
 foreach ($file in $files) {
   Write-Verbose "Test '$file'" -verbose
   $fileName = (get-item $file).name
+  $fileFullName = (get-item $file).FullName
   $json = ConvertFrom-Json -InputObject (Get-Content -Path $file -Raw) -ErrorAction SilentlyContinue
   $testCase = @{
     fileName     = $fileName
@@ -100,18 +101,18 @@ foreach ($file in $files) {
     policyEffect = GetPolicyEffect -policyObject $json
   }
 
-  Describe "[$fileName]: Policy Definition Syntax Test" -Tag "policyDefSyntax" {
+  Describe "[$fileFullName]: Policy Definition Syntax Test" -Tag "policyDefSyntax" {
 
     Context "Required Top-Level Elements Test" -Tag "TopLevelElements" {
 
-      It "Should contain top-level element name" -TestCases $testCase {
+      It "Should contain top-level element name" -TestCases $testCase -Tag 'NameExists' {
         param(
           [object] $json
         )
         $json.PSobject.Properties.name -match 'name' | Should -Not -Be $Null
       }
 
-      It "Should contain top-level element - properties" -TestCases $testCase {
+      It "Should contain top-level element - properties" -TestCases $testCase -Tag 'PropertiesExists' {
         param(
           [object] $json
         )

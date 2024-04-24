@@ -129,3 +129,50 @@ Function Test-AzPolicySetDefinition {
 
   Invoke-Pester -Configuration $config
 }
+
+Function GetRelativeFilepath {
+  [CmdletBinding()]
+  Param (
+    [Parameter(Mandatory = $true)]
+    [String]$path,
+
+    [Parameter(Mandatory = $true)]
+    [String]$relativeBasePath
+  )
+  $relativePath = Resolve-Path -Path $path -RelativeBasePath $relativeBasePath -Relative
+  $relativePath
+}
+
+Function GetGitRoot {
+  [CmdletBinding()]
+  Param (
+    [Parameter(Mandatory = $true, ValueFromPipeline = $true, HelpMessage = 'Specify the folder path.')]
+    [ValidateScript({Test-Path $_ -PathType Container})]
+    [String]$path
+  )
+  #store the current Directory in a variable
+  $currentDir = $pwd
+
+  #Change the working directory to the specified path
+  Set-Location $path
+
+  #Check if the current directory is inside a git repository
+  try {
+    $isGitRepo = Invoke-Expression 'git rev-parse --is-inside-work-tree 2>&1' -ErrorAction SilentlyContinue
+  } catch {
+    $isGitRepo = 'false'
+  }
+  if ($isGitRepo -eq 'true') {
+    #Get the root directory of the git repository
+    $gitRootDir = Invoke-expression 'git rev-parse --show-toplevel 2>&1' -ErrorAction SilentlyContinue
+    if (Test-Path $gitRootDir) {
+      $gitRootDir = Convert-Path $gitRootDir
+    }
+  } else {
+    Write-Warning "The specified path '$path' is not inside a git repository or git command tool is not installed."
+  }
+
+  #Change the working directory back to the original directory
+  Set-Location $currentDir
+  $gitRootDir
+}
