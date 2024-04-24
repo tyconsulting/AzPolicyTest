@@ -50,8 +50,7 @@ Test a single Azure policy definition and store the test result in a file
 C:\PS> Test-AzPolicyDefinition -Path "C:\PolicyDefinitionFolder\azurepolicy.json" -OutputFile "C:\Temp\MyTestResult.xml" -OutputFormat 'LegacyNUnitXML'
 ```
 
-Test a single Azure policy definition and store the test result in a file with
-            the 'LegacyNUnitXML' format
+Test a single Azure policy definition and store the test result in a file with the 'LegacyNUnitXML' format
 
 ### EXAMPLE 4
 

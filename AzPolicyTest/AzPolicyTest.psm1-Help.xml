@@ -187,7 +187,7 @@
         <maml:title>-------------------------- EXAMPLE 3 --------------------------</maml:title>
         <dev:code>C:\PS&gt; Test-AzPolicyDefinition -Path "C:\PolicyDefinitionFolder\azurepolicy.json" -OutputFile "C:\Temp\MyTestResult.xml" -OutputFormat 'LegacyNUnitXML'</dev:code>
         <dev:remarks>
-          <maml:para>Test a single Azure policy definition and store the test result in a file with             the 'LegacyNUnitXML' format</maml:para>
+          <maml:para>Test a single Azure policy definition and store the test result in a file with the 'LegacyNUnitXML' format</maml:para>
         </dev:remarks>
       </command:example>
       <command:example>
