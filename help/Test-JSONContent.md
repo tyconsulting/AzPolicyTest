@@ -44,6 +44,14 @@ C:\PS> Test-JSONContent -Path "C:\PolicySetDefinitionFolder\azurepolicyset.json"
 
 Perform JSON Syntax testing on a single Azure Policy Initiative definition file store the test result in a file with the 'LegacyNUnitXML' format
 
+### EXAMPLE 4
+
+```powershell
+C:\PS> Test-JSONContent -Path "C:\PolicyDefinitionFolder\" -OutputFile "C:\Temp\MyTestResult.xml" -ExcludeTags 'JsonSyntax'
+```
+
+Perform JSON Syntax testing on all JSON files in a folder and its subfolders, exclude test with the `JsonSyntax` tag and store the test result in a file.
+
 ## PARAMETERS
 
 ### path
@@ -52,12 +60,26 @@ Specify the file paths for the policy definition files.
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: true
 Position: named
-Default Value: 
+Default Value:
 Pipeline Input: True (ByValue)
+```
+
+### ExcludeTags
+Specify the tags for excluded tests.
+
+```yaml
+Type: String[]
+Parameter Sets: (All)
+Aliases:
+
+Required: false
+Position: named
+Default Value: @()
+Pipeline Input: false
 ```
 
 ### OutputFile
@@ -66,11 +88,11 @@ Pipeline Input: True (ByValue)
 ```yaml
 Type: String
 Parameter Sets: ProduceOutputFile
-Aliases: 
+Aliases:
 
 Required: true
 Position: named
-Default Value: 
+Default Value:
 Pipeline Input: false
 ```
 
@@ -80,7 +102,7 @@ Pipeline Input: false
 ```yaml
 Type: String
 Parameter Sets: ProduceOutputFile
-Aliases: 
+Aliases:
 
 Required: false
 Position: named

@@ -3,6 +3,27 @@ Param (
   [Parameter(Mandatory = $true)][validateScript({ Test-Path $_ })][string]$Path
 )
 Write-Verbose "Path: '$Path'"
+
+function IsParameterInUse {
+  param(
+    [object] $policySetObject,
+    [string] $parameterName
+  )
+  $parameterRegex = "^\[{1,2}parameters\(\'($parameterName)\'\)\]$"
+  $bIsInUse = $false
+  Foreach ($policyObject in $policySetObject.properties.policyDefinitions) {
+    foreach ($name in $policyObject.parameters.PSObject.Properties.Name) {
+      if ($policyObject.parameters.$name.value -imatch $parameterRegex) {
+        $bIsInUse = $true
+        break
+      }
+    }
+    if ($bIsInUse) {
+      break
+    }
+  }
+  $bIsInUse
+}
 #variables
 $TestName = "Policy Set Definition Syntax Test"
 
@@ -109,6 +130,13 @@ Foreach ($file in $files) {
         $json.properties.PSobject.Properties.name -match 'description' | Should -Not -Be $Null
       }
 
+      It "'description' value must not be longer than 512 characters" -TestCases $testCase -Tag 'DescriptionLength' {
+        param(
+          [object] $json
+        )
+        $json.properties.description.length | Should -BeLessOrEqual 512
+      }
+
       It "Properties must contain 'metadata' element" -TestCases $testCase -Tag 'MetadataExists' {
         param(
           [object] $json
@@ -116,18 +144,25 @@ Foreach ($file in $files) {
         $json.properties.PSobject.Properties.name -match 'metadata' | Should -Not -Be $Null
       }
 
-      It "Properties must contain 'parameters' element" -TestCases $testCase - Tag 'ParametersExists' {
+      It "Properties must contain 'parameters' element" -TestCases $testCase -Tag 'ParametersExists' {
         param(
           [object] $json
         )
         $json.properties.PSobject.Properties.name -match 'parameters' | Should -Not -Be $Null
       }
 
-      It "'parameters' element must contain at least one item" -TestCases $testCase -Tag "ParametersCount" {
+      It "'parameters' element must contain at least one (1) item" -TestCases $testCase -Tag "ParametersMinCount" {
         param(
           [object] $json
         )
         $json.properties.parameters.PSObject.Properties.count | Should -BeGreaterThan 0
+      }
+
+      It "'parameters' element must contain no more than four hundred (400) items" -TestCases $testCase -Tag 'ParametersMaxCount' {
+        param(
+          [object] $json
+        )
+        $json.properties.parameters.PSObject.Properties.count | Should -BeLessOrEqual 400
       }
 
       It "Properties must contain 'policyDefinitions' element" -TestCases $testCase -Tag 'PolicyDefinitionsExists' {
@@ -200,6 +235,7 @@ Foreach ($file in $files) {
         $parameterTestCase = @{
           parameterName   = $parameterName
           parameterConfig = $parameterConfig
+          parameterInUse  = IsParameterInUse -policySetObject $json -parameterName $parameterName
         }
 
         It "Parameter [<parameterName>] must contain 'type' element" -TestCases $parameterTestCase -Tag 'ParameterTypeExists' {
@@ -232,6 +268,14 @@ Foreach ($file in $files) {
             [object] $parameterConfig
           )
           $parameterConfig.metadata.PSobject.Properties.name -match 'description' | Should -Not -Be $null
+        }
+
+        It "Parameter [<parameterName>] must not be unused" -TestCases $parameterTestCase -Tag 'ParameterNotUnused' {
+          param(
+            [string] $parameterName,
+            [boolean] $parameterInUse
+          )
+          $parameterInUse | Should -Be $true
         }
       }
     }

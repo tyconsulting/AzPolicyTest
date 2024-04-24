@@ -125,28 +125,28 @@ foreach ($file in $files) {
 
     Context "Policy Definition Elements Value Test" -Tag 'PolicyElements' {
 
-      It "Name value must not be null" -TestCases $testCase {
+      It "Name value must not be null" -TestCases $testCase -Tag 'NameNotNull' {
         param(
           [object] $json
         )
         $json.name.length | Should -BeGreaterThan 0
       }
 
-      It "Name value must not be longer than 64 characters" -TestCases $testCase {
+      It "Name value must not be longer than 64 characters" -TestCases $testCase -Tag 'NameLength' {
         param(
           [object] $json
         )
         $json.name.length | Should -BeLessOrEqual 64
       }
 
-      It "Name value must not contain spaces" -TestCases $testCase {
+      It "Name value must not contain spaces" -TestCases $testCase -Tag 'NoSpaceInName' {
         param(
           [object] $json
         )
         $json.name -match ' ' | Should -Be $false
       }
 
-      It "Name value must not contain forbidden characters" -TestCases $testCase {
+      It "Name value must not contain forbidden characters" -TestCases $testCase -Tag 'NoForbiddenCharsInName' {
         param(
           [object] $json
         )
@@ -157,98 +157,112 @@ foreach ($file in $files) {
 
     Context "Policy Definition Properties Value Test" -Tag 'PolicyProperties' {
 
-      It "Properties must contain 'displayName' element" -TestCases $testCase {
+      It "Properties must contain 'displayName' element" -TestCases $testCase -Tag 'DisplayNameExists' {
         param(
           [object] $json
         )
         $json.properties.PSobject.Properties.name -match 'displayName' | Should -Not -Be $Null
       }
 
-      It "'DisplayName' value must not be longer than 128 characters" -TestCases $testCase {
+      It "'DisplayName' value must not be longer than 128 characters" -TestCases $testCase -Tag 'DisplayNameLength' {
         param(
           [object] $json
         )
         $json.properties.displayName.length | Should -BeLessOrEqual 128
       }
 
-      It "Properties must contain 'description' element" -TestCases $testCase {
+      It "Properties must contain 'description' element" -TestCases $testCase -Tag 'DescriptionExists' {
         param(
           [object] $json
         )
         $json.properties.PSobject.Properties.name -match 'description' | Should -Not -Be $Null
       }
 
-      It "Properties must contain 'metadata' element" -TestCases $testCase {
+      It "'description' value must not be longer than 512 characters" -TestCases $testCase -Tag 'DescriptionLength' {
+        param(
+          [object] $json
+        )
+        $json.properties.description.length | Should -BeLessOrEqual 512
+      }
+
+      It "Properties must contain 'metadata' element" -TestCases $testCase -Tag 'MetadataExists' {
         param(
           [object] $json
         )
         $json.properties.PSobject.Properties.name -match 'metadata' | Should -Not -Be $Null
       }
 
-      It "Properties must contain 'mode' element" -TestCases $testCase {
+      It "Properties must contain 'mode' element" -TestCases $testCase -Tag 'ModeExists' {
         param(
           [object] $json
         )
         $json.properties.PSobject.Properties.name -match 'mode' | Should -Not -Be $Null
       }
 
-      It "Policy mode must have a valid value." -TestCases $testCase {
+      It "Policy mode must have a valid value." -TestCases $testCase -Tag 'ValidMode' {
         param(
           [object] $json
         )
         $global:validModes.contains($json.properties.mode) | Should -Be $true
       }
 
-      It "Properties must contain 'parameters' element" -TestCases $testCase {
+      It "Properties must contain 'parameters' element" -TestCases $testCase -Tag 'ParametersExists' {
         param(
           [object] $json
         )
         $json.properties.PSobject.Properties.name -match 'parameters' | Should -Not -Be $Null
       }
 
-      It "'parameters' element must contain at least one item" -TestCases $testCase {
+      It "'parameters' element must contain at least one (1) item" -TestCases $testCase -Tag 'ParametersMinCount' {
         param(
           [object] $json
         )
         $json.properties.parameters.PSObject.Properties.count | Should -BeGreaterThan 0
       }
 
-      It "Properties must contain 'policyRule' element" -TestCases $testCase {
+      It "'parameters' element must contain no more than twenty (20) items" -TestCases $testCase -Tag 'ParametersMaxCount' {
+        param(
+          [object] $json
+        )
+        $json.properties.parameters.PSObject.Properties.count | Should -BeLessOrEqual 20
+      }
+
+      It "Properties must contain 'policyRule' element" -TestCases $testCase -Tag 'PolicyRuleExists' {
         param(
           [object] $json
         )
         $json.properties.PSobject.Properties.name -match 'policyRule' | Should -Not -Be $Null
       }
 
-      It "'DisplayName' value must not be blank" -TestCases $testCase {
+      It "'DisplayName' value must not be blank" -TestCases $testCase -Tag 'DisplayNameNotBlank' {
         param(
           [object] $json
         )
         $json.properties.displayName.length | Should -BeGreaterThan 0
       }
 
-      It "'Description' value must not be blank" -TestCases $testCase {
+      It "'Description' value must not be blank" -TestCases $testCase -Tag 'DescriptionNotBlank' {
         param(
           [object] $json
         )
         $json.properties.description.length | Should -BeGreaterThan 0
       }
 
-      It "Must contain 'Category' metadata" -TestCases $testCase {
+      It "Must contain 'Category' metadata" -TestCases $testCase -Tag 'CategoryExists' {
         param(
           [object] $json
         )
         $json.properties.metadata.category.length | Should -BeGreaterThan 0
       }
 
-      It "Must contain 'Version' metadata" -TestCases $testCase {
+      It "Must contain 'Version' metadata" -TestCases $testCase -Tag 'VersionExists' {
         param(
           [object] $json
         )
         $json.properties.metadata.version.length | Should -BeGreaterThan 0
       }
 
-      It "'Version' metadata value must be a valid semantic version" -TestCases $testCase {
+      It "'Version' metadata value must be a valid semantic version" -TestCases $testCase -Tag 'VersionIsSemantic' {
         param(
           [object] $json
         )
@@ -264,7 +278,7 @@ foreach ($file in $files) {
           parameterConfig = $parameterConfig
         }
 
-        It "Parameter [<parameterName>] must contain 'type' element" -TestCases $parameterTestCase {
+        It "Parameter [<parameterName>] must contain 'type' element" -TestCases $parameterTestCase -Tag 'ParameterTypeExists' {
           param(
             [string] $parameterName,
             [object] $parameterConfig
@@ -272,7 +286,7 @@ foreach ($file in $files) {
           $parameterConfig.PSobject.Properties.name -match 'type' | Should -Not -Be $null
         }
 
-        It "Parameter [<parameterName>] must have a valid value for the 'type' element" -TestCases $parameterTestCase {
+        It "Parameter [<parameterName>] must have a valid value for the 'type' element" -TestCases $parameterTestCase -Tag 'ParameterTypeValid' {
           param(
             [string] $parameterName,
             [object] $parameterConfig
@@ -280,7 +294,7 @@ foreach ($file in $files) {
           $global:validParameterTypes -contains $parameterConfig.type.tolower() | Should -Be $true
         }
 
-        It "Parameter [<parameterName>] metadata must contain 'displayName' element" -TestCases $parameterTestCase {
+        It "Parameter [<parameterName>] metadata must contain 'displayName' element" -TestCases $parameterTestCase -Tag 'ParameterDisplayNameExists' {
           param(
             [string] $parameterName,
             [object] $parameterConfig
@@ -288,7 +302,7 @@ foreach ($file in $files) {
           $parameterConfig.metadata.PSobject.Properties.name -match 'displayName' | Should -Not -Be $null
         }
 
-        It "Parameter [<parameterName>] metadata must contain 'description' element" -TestCases $parameterTestCase {
+        It "Parameter [<parameterName>] metadata must contain 'description' element" -TestCases $parameterTestCase -Tag 'ParameterDescriptionExists' {
           param(
             [string] $parameterName,
             [object] $parameterConfig
@@ -299,13 +313,13 @@ foreach ($file in $files) {
     }
 
     Context "Policy Rule Test" -Tag 'PolicyRule' {
-      It "Policy Rule must contain 'if' element" -TestCases $testCase {
+      It "Policy Rule must contain 'if' element" -TestCases $testCase -Tag 'PolicyRuleIfExists' {
         param(
           [object] $json
         )
         $json.properties.policyRule.PSobject.Properties.name -match 'if' | Should -Not -Be $Null
       }
-      It "Policy Rule must contain 'then' element" -TestCases $testCase {
+      It "Policy Rule must contain 'then' element" -TestCases $testCase -Tag 'PolicyRuleThenExists' {
         param(
           [object] $json
         )
@@ -314,28 +328,28 @@ foreach ($file in $files) {
     }
 
     Context "Policy Effect Test" -Tag 'PolicyEffect' {
-      It "Policy Rule should have parameterised effect" -TestCases $testCase {
+      It "Policy Rule should have parameterised effect" -TestCases $testCase -Tag 'PolicyEffectParameterised' {
         param(
           [object] $json,
           [hashtable]$policyEffect
         )
         $policyEffect.isHardCoded | Should -Be $false
       }
-      It "Policy Rule parameterised effect should contain 'Disabled' effect" -TestCases ($script:testCases | where-Object { $_.policyEffect.isHardCoded -eq $false }) {
+      It "Policy Rule parameterised effect should contain 'Disabled' effect" -TestCases ($script:testCases | where-Object { $_.policyEffect.isHardCoded -eq $false }) -Tag 'PolicyEffectParameterContainsDisabled' {
         param(
           [object] $json,
           [hashtable]$policyEffect
         )
         $policyEffect.effects -contains 'Disabled' | Should -Be $true
       }
-      It "Policy Rule parameterised effect should have a default value" -TestCases ($script:testCases | where-Object { $_.policyEffect.isHardCoded -eq $false }) {
+      It "Policy Rule parameterised effect should have a default value" -TestCases ($script:testCases | where-Object { $_.policyEffect.isHardCoded -eq $false }) -Tag 'PolicyEffectParameterHasDefaultValue' {
         param(
           [object] $json,
           [hashtable]$policyEffect
         )
         $policyEffect.defaultEffectValue | Should -Not -Be $null
       }
-      It "Policy Rule must use a valid effect" -TestCases $testCase {
+      It "Policy Rule must use a valid effect" -Tag 'PolicyEffectIsValid'-TestCases $testCase {
         param(
           [object] $json,
           [hashtable]$policyEffect
@@ -349,14 +363,14 @@ foreach ($file in $files) {
         $validEffectCount  | Should -BeGreaterThan 0
       }
 
-      It "Policy rule with 'Deny' effect must also support 'Audit' Effect" -TestCases ($script:testCases | where-Object { $_.policyEffect.effects -contains 'Deny' }) {
+      It "Policy rule with 'Deny' effect must also support 'Audit' Effect" -TestCases ($script:testCases | where-Object { $_.policyEffect.effects -contains 'Deny' }) -Tag 'PolicyDenyEffectAlsoSupportAudit' {
         param(
           [object] $json
         )
         $policyEffect.effects -contains 'Audit' | Should -Be $true
       }
 
-      It "Policy rule with 'Audit' effect must also support 'Deny' Effect" -TestCases ($script:testCases | where-Object { $_.policyEffect.effects -contains 'Audit' }) {
+      It "Policy rule with 'Audit' effect must also support 'Deny' Effect" -TestCases ($script:testCases | where-Object { $_.policyEffect.effects -contains 'Audit' }) -Tag 'PolicyAuditEffectAlsoSupportDeny' {
         param(
           [object] $json
         )
@@ -364,44 +378,44 @@ foreach ($file in $files) {
       }
     }
 
-    Context "DeployIfNotExists Effect Policy Configuration Test" -Tag 'DeployIfNotExistsConfig' {
-      It "Policy rule 'then' element Must contain a 'details' element" -TestCases ($script:testCases | where-Object { $_.policyEffect.effects -contains 'DeployIfNotExists' }) {
+    Context "DeployIfNotExists Effect Policy Configuration Test" -Tag 'DINEConfig' {
+      It "Policy rule 'then' element Must contain a 'details' element" -TestCases ($script:testCases | where-Object { $_.policyEffect.effects -contains 'DeployIfNotExists' }) -Tag 'DINEDetails' {
         param(
           [object] $json
         )
         $json.properties.policyRule.then.PSobject.Properties.name -match 'details' | Should -Not -Be $Null
       }
-      It "Policy rule must contain a embedded 'deployment' element" -TestCases ($script:testCases | where-Object { $_.policyEffect.effects -contains 'DeployIfNotExists' }) {
+      It "Policy rule must contain a embedded 'deployment' element" -TestCases ($script:testCases | where-Object { $_.policyEffect.effects -contains 'DeployIfNotExists' }) -Tag 'DINEDeployment' {
         param(
           [object] $json
         )
         $json.properties.policyRule.then.details.PSobject.Properties.name -match 'deployment' | Should -Not -Be $Null
       }
-      It "Deployment mode for the policy rule must be 'incremental'" -TestCases ($script:testCases | where-Object { $_.policyEffect.effects -contains 'DeployIfNotExists' }) {
+      It "Deployment mode for the policy rule must be 'incremental'" -TestCases ($script:testCases | where-Object { $_.policyEffect.effects -contains 'DeployIfNotExists' }) -Tag 'DINEIncrementalDeployment' {
         param(
           [object] $json
         )
         $json.properties.policyRule.then.details.deployment.properties.mode -match 'incremental' | Should -Not -Be $Null
       }
-      It "Policy rule must contain a 'evaluationDelay' element" -TestCases ($script:testCases | where-Object { $_.policyEffect.effects -contains 'DeployIfNotExists' }) {
+      It "Policy rule must contain a 'evaluationDelay' element" -TestCases ($script:testCases | where-Object { $_.policyEffect.effects -contains 'DeployIfNotExists' }) -Tag 'DINEEvaluationDelay' {
         param(
           [object] $json
         )
         $json.properties.policyRule.then.details.PSobject.Properties.name -match 'evaluationDelay' | Should -Not -Be $Null
       }
-      It "Policy rule must contain a 'existenceCondition' element" -TestCases ($script:testCases | where-Object { $_.policyEffect.effects -contains 'DeployIfNotExists' }) {
+      It "Policy rule must contain a 'existenceCondition' element" -TestCases ($script:testCases | where-Object { $_.policyEffect.effects -contains 'DeployIfNotExists' }) -Tag 'DINEExistenceCondition' {
         param(
           [object] $json
         )
         $json.properties.policyRule.then.details.PSobject.Properties.name -match 'existenceCondition' | Should -Not -Be $Null
       }
-      It "Policy rule must contain a 'roleDefinitionIds' element" -TestCases ($script:testCases | where-Object { $_.policyEffect.effects -contains 'DeployIfNotExists' }) {
+      It "Policy rule must contain a 'roleDefinitionIds' element" -TestCases ($script:testCases | where-Object { $_.policyEffect.effects -contains 'DeployIfNotExists' }) -Tag 'DINERoleDefinition' {
         param(
           [object] $json
         )
         $json.properties.policyRule.then.details.PSobject.Properties.name -match 'roleDefinitionIds' | Should -Not -Be $Null
       }
-      It "'roleDefinitionIds' element must contain at least one item" -TestCases ($script:testCases | where-Object { $_.policyEffect.effects -contains 'DeployIfNotExists' }) {
+      It "'roleDefinitionIds' element must contain at least one item" -TestCases ($script:testCases | where-Object { $_.policyEffect.effects -contains 'DeployIfNotExists' }) -Tag 'DINERoleDefinitionCount' {
         param(
           [object] $json
         )
@@ -409,38 +423,38 @@ foreach ($file in $files) {
       }
     }
 
-    Context "DeployIfNotExists Effect Policy Embedded ARM Template Test" -Tag 'DeployIfNotExistsTemplate' {
-      It 'Embedded template Must have a valid schema' -TestCases ($script:testCases | where-Object { $_.policyEffect.effects -contains 'DeployIfNotExists' }) {
+    Context "DeployIfNotExists Effect Policy Embedded ARM Template Test" -Tag 'DINETemplate' {
+      It 'Embedded template Must have a valid schema' -TestCases ($script:testCases | where-Object { $_.policyEffect.effects -contains 'DeployIfNotExists' }) -Tag 'DINETemplateSchema' {
         param(
           [object] $json
         )
         $json.properties.policyRule.then.details.deployment.properties.template."`$schema" | Should -BeLike 'https://schema.management.azure.com/schemas/*'
       }
-      It 'Embedded template Must contain a valid contentVersion' -TestCases ($script:testCases | where-Object { $_.policyEffect.effects -contains 'DeployIfNotExists' }) {
+      It 'Embedded template Must contain a valid contentVersion' -TestCases ($script:testCases | where-Object { $_.policyEffect.effects -contains 'DeployIfNotExists' }) -Tag 'DINETemplateContentVersion' {
         param(
           [object] $json
         )
         $json.properties.policyRule.then.details.deployment.properties.template.contentVersion | Should -BeGreaterThan ([version]'0.0.0.1')
       }
-      It "Embedded template Must contain a 'parameters' element" -TestCases ($script:testCases | where-Object { $_.policyEffect.effects -contains 'DeployIfNotExists' }) {
+      It "Embedded template Must contain a 'parameters' element" -TestCases ($script:testCases | where-Object { $_.policyEffect.effects -contains 'DeployIfNotExists' }) -Tag 'DINETemplateParameters' {
         param(
           [object] $json
         )
         $json.properties.policyRule.then.details.deployment.properties.template.PSobject.Properties.name -match 'parameters' | Should -Not -Be $Null
       }
-      It "Embedded template Must contain a 'variables' element" -TestCases ($script:testCases | where-Object { $_.policyEffect.effects -contains 'DeployIfNotExists' }) {
+      It "Embedded template Must contain a 'variables' element" -TestCases ($script:testCases | where-Object { $_.policyEffect.effects -contains 'DeployIfNotExists' }) -Tag 'DINETemplateVariables' {
         param(
           [object] $json
         )
         $json.properties.policyRule.then.details.deployment.properties.template.PSobject.Properties.name -match 'variables' | Should -Not -Be $Null
       }
-      It "Embedded template Must contain a 'resources' element" -TestCases ($script:testCases | where-Object { $_.policyEffect.effects -contains 'DeployIfNotExists' }) {
+      It "Embedded template Must contain a 'resources' element" -TestCases ($script:testCases | where-Object { $_.policyEffect.effects -contains 'DeployIfNotExists' }) -Tag 'DINETemplateResources' {
         param(
           [object] $json
         )
         $json.properties.policyRule.then.details.deployment.properties.template.PSobject.Properties.name -match 'resources' | Should -Not -Be $Null
       }
-      It "Embedded template Must contain a 'outputs' element" -TestCases ($script:testCases | where-Object { $_.policyEffect.effects -contains 'DeployIfNotExists' }) {
+      It "Embedded template Must contain a 'outputs' element" -TestCases ($script:testCases | where-Object { $_.policyEffect.effects -contains 'DeployIfNotExists' }) -Tag 'DINETemplateOutputs' {
         param(
           [object] $json
         )
@@ -449,37 +463,37 @@ foreach ($file in $files) {
     }
 
     Context "Modify Effect Configuration Test" -Tag 'ModifyConfig' {
-      It "Policy rule 'then' element Must contain a 'details' element" -TestCases ($script:testCases | where-Object { $_.policyEffect.effects -contains 'Modify' }) {
+      It "Policy rule 'then' element Must contain a 'details' element" -TestCases ($script:testCases | where-Object { $_.policyEffect.effects -contains 'Modify' })  -Tag 'ModifyDetails' {
         param(
           [object] $json
         )
         $json.properties.policyRule.then.PSobject.Properties.name -match 'details' | Should -Not -Be $Null
       }
-      It "Policy rule must contain a 'roleDefinitionIds' element" -TestCases ($script:testCases | where-Object { $_.policyEffect.effects -contains 'Modify' }) {
+      It "Policy rule must contain a 'roleDefinitionIds' element" -TestCases ($script:testCases | where-Object { $_.policyEffect.effects -contains 'Modify' }) -Tag 'ModifyRoleDefinition' {
         param(
           [object] $json
         )
         $json.properties.policyRule.then.details.PSobject.Properties.name -match 'roleDefinitionIds' | Should -Not -Be $Null
       }
-      It "'roleDefinitionIds' element must contain at least one item" -TestCases ($script:testCases | where-Object { $_.policyEffect.effects -contains 'Modify' }) {
+      It "'roleDefinitionIds' element must contain at least one item" -TestCases ($script:testCases | where-Object { $_.policyEffect.effects -contains 'Modify' }) -Tag 'ModifyRoleDefinitionCount' {
         param(
           [object] $json
         )
         $json.properties.policyRule.then.details.roleDefinitionIds.count | Should -BeGreaterThan 0
       }
-      It "Policy rule must contain a 'conflictEffect' element" -TestCases ($script:testCases | where-Object { $_.policyEffect.effects -contains 'Modify' }) {
+      It "Policy rule must contain a 'conflictEffect' element" -TestCases ($script:testCases | where-Object { $_.policyEffect.effects -contains 'Modify' }) -Tag 'ModifyConflictEffect' {
         param(
           [object] $json
         )
         $json.properties.policyRule.then.details.PSobject.Properties.name -match 'conflictEffect' | Should -Not -Be $Null
       }
-      It "'conflictEffect' element must have a valid value" -TestCases ($script:testCases | where-Object { $_.policyEffect.effects -contains 'Modify' }) {
+      It "'conflictEffect' element must have a valid value" -TestCases ($script:testCases | where-Object { $_.policyEffect.effects -contains 'Modify' }) -Tag 'ModifyConflictEffectValid' {
         param(
           [object] $json
         )
         $global:modifyConflictEffectsValidValues -contains $json.properties.policyRule.then.details.conflictEffect | Should -Be $true
       }
-      It "Policy rule must contain an 'operations' element" -TestCases ($script:testCases | where-Object { $_.policyEffect.effects -contains 'Modify' }) {
+      It "Policy rule must contain an 'operations' element" -TestCases ($script:testCases | where-Object { $_.policyEffect.effects -contains 'Modify' }) -Tag 'ModifyOperations' {
         param(
           [object] $json
         )
@@ -488,19 +502,19 @@ foreach ($file in $files) {
     }
 
     Context "AuditIfNotExists Effect Configuration Test" -Tag 'AuditIfNotExistsConfig' {
-      It "Policy rule 'then' element Must contain a 'details' element" -TestCases ($script:testCases | where-Object { $_.policyEffect.effects -contains 'AuditIfNotExists' }) {
+      It "Policy rule 'then' element Must contain a 'details' element" -TestCases ($script:testCases | where-Object { $_.policyEffect.effects -contains 'AuditIfNotExists' }) -Tag 'AINEDetails' {
         param(
           [object] $json
         )
         $json.properties.policyRule.then.PSobject.Properties.name -match 'details' | Should -Not -Be $Null
       }
-      It "Policy rule must contain a 'evaluationDelay' element" -TestCases ($script:testCases | where-Object { $_.policyEffect.effects -contains 'AuditIfNotExists' }) {
+      It "Policy rule must contain a 'evaluationDelay' element" -TestCases ($script:testCases | where-Object { $_.policyEffect.effects -contains 'AuditIfNotExists' }) -Tag 'AINEEvaluationDelay' {
         param(
           [object] $json
         )
         $json.properties.policyRule.then.details.PSobject.Properties.name -match 'evaluationDelay' | Should -Not -Be $Null
       }
-      It "Policy rule must contain a 'existenceCondition' element" -TestCases ($script:testCases | where-Object { $_.policyEffect.effects -contains 'AuditIfNotExists' }) {
+      It "Policy rule must contain a 'existenceCondition' element" -TestCases ($script:testCases | where-Object { $_.policyEffect.effects -contains 'AuditIfNotExists' }) -Tag 'AINEExistenceCondition' {
         param(
           [object] $json
         )
