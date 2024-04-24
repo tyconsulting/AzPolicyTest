@@ -29,12 +29,14 @@ Foreach ($file in $files) {
   Write-Verbose "Test '$file'" -verbose
   $fileName = (get-item $file).name
   $fileFullName = (get-item $file).FullName
+  $fileRelativePath = GetRelativeFilePath -path $fileFullName
   $json = ConvertFrom-Json -InputObject (Get-Content -Path $file -Raw) -ErrorAction SilentlyContinue
   $testCase = @{
-    fileName = $fileName
-    json     = $json
+    fileName         = $fileName
+    json             = $json
+    fileRelativePath = $fileRelativePath
   }
-  Describe "[$fileFullName]: $TestName" -Tag "policyDefSyntax" {
+  Describe "[$fileRelativePath]:: $TestName" -Tag "policyDefSyntax" {
 
     Context "Required Top-Level Elements Test" -Tag "TopLevelElements" {
 
@@ -128,7 +130,7 @@ Foreach ($file in $files) {
         $json.properties.parameters.PSObject.Properties.count | Should -BeGreaterThan 0
       }
 
-      It "Properties must contain 'policyDefinitions' element" -TestCases $testCase -Tag 'PolicyDefinitionsExists'{
+      It "Properties must contain 'policyDefinitions' element" -TestCases $testCase -Tag 'PolicyDefinitionsExists' {
         param(
           [object] $json
         )
@@ -142,28 +144,28 @@ Foreach ($file in $files) {
         $json.properties.policyDefinitions.count | Should -BeGreaterThan 0
       }
 
-      It "Properties must contain 'policyDefinitionGroups' element" -TestCases $testCase -Tag 'PolicyDefinitionGroupsExists'{
+      It "Properties must contain 'policyDefinitionGroups' element" -TestCases $testCase -Tag 'PolicyDefinitionGroupsExists' {
         param(
           [object] $json
         )
         $json.properties.PSobject.Properties.name -match 'policyDefinitionGroups' | Should -Not -Be $Null
       }
 
-      It "'policyDefinitionGroups' element must contain at least one item" -TestCases $testCase -Tag 'PolicyDefinitionGroupsCount'{
+      It "'policyDefinitionGroups' element must contain at least one item" -TestCases $testCase -Tag 'PolicyDefinitionGroupsCount' {
         param(
           [object] $json
         )
         $json.properties.policyDefinitionGroups.count | Should -BeGreaterThan 0
       }
 
-      It "'DisplayName' value must not be blank" -TestCases $testCase -Tag 'DisplayNameNotBlank'{
+      It "'DisplayName' value must not be blank" -TestCases $testCase -Tag 'DisplayNameNotBlank' {
         param(
           [object] $json
         )
         $json.properties.displayName.length | Should -BeGreaterThan 0
       }
 
-      It "'Description' value must not be blank" -TestCases $testCase -Tag 'DescriptionNotBlank'{
+      It "'Description' value must not be blank" -TestCases $testCase -Tag 'DescriptionNotBlank' {
         param(
           [object] $json
         )
@@ -192,11 +194,11 @@ Foreach ($file in $files) {
       }
     }
 
-    Context "Parameters Tests" -Tag 'Parameters'{
+    Context "Parameters Tests" -Tag 'Parameters' {
       Foreach ($parameterName in $json.properties.parameters.PSObject.Properties.Name) {
         $parameterConfig = $json.properties.parameters.$parameterName
         $parameterTestCase = @{
-          parameterName = $parameterName
+          parameterName   = $parameterName
           parameterConfig = $parameterConfig
         }
 

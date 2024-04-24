@@ -94,14 +94,17 @@ foreach ($file in $files) {
   Write-Verbose "Test '$file'" -verbose
   $fileName = (get-item $file).name
   $fileFullName = (get-item $file).FullName
+  $fileRelativePath = GetRelativeFilePath -path $fileFullName
+  #check if the file is inside a git repository
   $json = ConvertFrom-Json -InputObject (Get-Content -Path $file -Raw) -ErrorAction SilentlyContinue
   $testCase = @{
-    fileName     = $fileName
-    json         = $json
-    policyEffect = GetPolicyEffect -policyObject $json
+    fileName         = $fileName
+    json             = $json
+    policyEffect     = GetPolicyEffect -policyObject $json
+    fileRelativePath = $fileRelativePath
   }
 
-  Describe "[$fileFullName]: Policy Definition Syntax Test" -Tag "policyDefSyntax" {
+  Describe "[$fileRelativePath]: Policy Definition Syntax Test" -Tag "policyDefSyntax" {
 
     Context "Required Top-Level Elements Test" -Tag "TopLevelElements" {
 

@@ -16,19 +16,19 @@ Function Test-JSONContent {
     path = $path
   }
   $config = @{
-    Run = @{
+    Run        = @{
       Container = New-PesterContainer -Path $FileContentTestFilePath -Data $testContainerData
-      PassThru = $true
+      PassThru  = $true
     }
     TestResult = @{
       TestSuiteName = 'Json Content Tests'
-      Enabled = $true
+      Enabled       = $true
     }
     Output     = @{
       Verbosity = 'Detailed'
     }
-    Should = @{
-        ErrorAction = 'Continue'
+    Should     = @{
+      ErrorAction = 'Continue'
     }
   }
   #File Content tests
@@ -59,18 +59,18 @@ Function Test-AzPolicyDefinition {
     path = $path
   }
   $config = @{
-    Run = @{
+    Run        = @{
       Container = New-PesterContainer -Path $DefinitionStructureTestFilePath -Data $testContainerData
-      PassThru = $true
+      PassThru  = $true
     }
     TestResult = @{
       TestSuiteName = 'Policy Definition Tests'
-      Enabled = $true
+      Enabled       = $true
     }
     Output     = @{
       Verbosity = 'Detailed'
     }
-    Should = @{
+    Should     = @{
       ErrorAction = 'Continue'
     }
   }
@@ -104,18 +104,18 @@ Function Test-AzPolicySetDefinition {
     path = $path
   }
   $config = @{
-    Run = @{
+    Run        = @{
       Container = New-PesterContainer -Path $DefinitionStructureTestFilePath -Data $testContainerData
-      PassThru = $true
+      PassThru  = $true
     }
     TestResult = @{
       TestSuiteName = 'Policy Initiative Tests'
-      Enabled = $true
+      Enabled       = $true
     }
     Output     = @{
       Verbosity = 'Detailed'
     }
-    Should = @{
+    Should     = @{
       ErrorAction = 'Continue'
     }
   }
@@ -130,16 +130,24 @@ Function Test-AzPolicySetDefinition {
   Invoke-Pester -Configuration $config
 }
 
-Function GetRelativeFilepath {
+Function GetRelativeFilePath {
   [CmdletBinding()]
   Param (
     [Parameter(Mandatory = $true)]
-    [String]$path,
-
-    [Parameter(Mandatory = $true)]
-    [String]$relativeBasePath
+    [ValidateScript({ Test-Path $_ })]
+    [String]$path
   )
-  $relativePath = Resolve-Path -Path $path -RelativeBasePath $relativeBasePath -Relative
+  #Try to get git root directory
+  if ((Get-Item $path).PSIsContainer) {
+    $gitRoot = GetGitRoot -path $path
+  } else {
+    $gitRoot = GetGitRoot -path (Get-Item $path).Directory
+  }
+  if ($gitRoot) {
+    $relativePath = Resolve-Path -Path $path -RelativeBasePath $gitRoot -Relative
+  } else {
+    $relativePath = $path
+  }
   $relativePath
 }
 
@@ -147,7 +155,7 @@ Function GetGitRoot {
   [CmdletBinding()]
   Param (
     [Parameter(Mandatory = $true, ValueFromPipeline = $true, HelpMessage = 'Specify the folder path.')]
-    [ValidateScript({Test-Path $_ -PathType Container})]
+    [ValidateScript({ Test-Path $_ -PathType Container })]
     [String]$path
   )
   #store the current Directory in a variable
@@ -169,7 +177,7 @@ Function GetGitRoot {
       $gitRootDir = Convert-Path $gitRootDir
     }
   } else {
-    Write-Warning "The specified path '$path' is not inside a git repository or git command tool is not installed."
+    Write-Verbose "The specified path '$path' is not inside a git repository or git command tool is not installed."
   }
 
   #Change the working directory back to the original directory
