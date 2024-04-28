@@ -19,25 +19,15 @@ Function Test-JSONContent {
   $testContainerData = @{
     path = $path
   }
-  $config = [PesterConfiguration]@{
-    Run        = @{
-      Container = New-PesterContainer -Path $FileContentTestFilePath -Data $testContainerData
-      PassThru  = $true
-    }
-    TestResult = @{
-      TestSuiteName = 'Json Content Tests'
-      Enabled       = $true
-    }
-    Filter     = @{
-      ExcludeTag = @()
-    }
-    Output     = @{
-      Verbosity = 'Detailed'
-    }
-    Should     = @{
-      ErrorAction = 'Continue'
-    }
-  }
+  $container = New-PesterContainer -Path $FileContentTestFilePath -Data $testContainerData
+  $config = New-PesterConfiguration
+  $config.Run.Container = $container
+  $config.Run.PassThru = $true
+  $config.Output.verbosity = 'Detailed'
+  $config.TestResult.Enabled = $true
+  $config.TestResult.TestSuiteName = 'Json Content Tests'
+  $config.should.ErrorAction = 'Continue'
+
   #File Content tests
   If ($PSCmdlet.ParameterSetName -eq 'ProduceOutputFile') {
     $config.TestResult.OutputFormat = $OutputFormat
@@ -73,25 +63,14 @@ Function Test-AzPolicyDefinition {
   $testContainerData = @{
     path = $path
   }
-  $config = @{
-    Run        = [PesterConfiguration]@{
-      Container = New-PesterContainer -Path $DefinitionStructureTestFilePath -Data $testContainerData
-      PassThru  = $true
-    }
-    TestResult = @{
-      TestSuiteName = 'Policy Definition Tests'
-      Enabled       = $true
-    }
-    Filter     = @{
-      ExcludeTag = @()
-    }
-    Output     = @{
-      Verbosity = 'Detailed'
-    }
-    Should     = @{
-      ErrorAction = 'Continue'
-    }
-  }
+  $container = New-PesterContainer -Path $DefinitionStructureTestFilePath -Data $testContainerData
+  $config = New-PesterConfiguration
+  $config.Run.Container = $container
+  $config.Run.PassThru = $true
+  $config.Output.verbosity = 'Detailed'
+  $config.TestResult.Enabled = $true
+  $config.TestResult.TestSuiteName = 'Policy Definition Tests'
+  $config.should.ErrorAction = 'Continue'
 
   #Policy Definition tests
   If ($PSCmdlet.ParameterSetName -eq 'ProduceOutputFile') {
@@ -128,25 +107,14 @@ Function Test-AzPolicySetDefinition {
   $testContainerData = @{
     path = $path
   }
-  $config = [PesterConfiguration]@{
-    Run        = @{
-      Container = New-PesterContainer -Path $DefinitionStructureTestFilePath -Data $testContainerData
-      PassThru  = $true
-    }
-    TestResult = @{
-      TestSuiteName = 'Policy Initiative Tests'
-      Enabled       = $true
-    }
-    Filter     = @{
-      ExcludeTag = @()
-    }
-    Output     = @{
-      Verbosity = 'Detailed'
-    }
-    Should     = @{
-      ErrorAction = 'Continue'
-    }
-  }
+  $container = New-PesterContainer -Path $DefinitionStructureTestFilePath -Data $testContainerData
+  $config = New-PesterConfiguration
+  $config.Run.Container = $container
+  $config.Run.PassThru = $true
+  $config.Output.verbosity = 'Detailed'
+  $config.TestResult.Enabled = $true
+  $config.TestResult.TestSuiteName = 'JPolicy Initiative Tests'
+  $config.should.ErrorAction = 'Continue'
 
   #Policy Initiative tests
   If ($PSCmdlet.ParameterSetName -eq 'ProduceOutputFile') {
