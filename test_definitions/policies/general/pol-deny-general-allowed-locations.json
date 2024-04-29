@@ -5,7 +5,7 @@
     "description": "This policy enables you to restrict the locations your organization can specify when deploying resources. Use to enforce your geo-compliance requirements. Excludes resource groups, Microsoft.AzureActiveDirectory/b2cDirectories, and resources that use the 'global' region.",
     "metadata": {
       "category": "TYANG - Identity and Access Management",
-      "version": "1.0.0",
+      "version": "1.0.0-deprecated",
       "preview": false
     },
     "mode": "Indexed",

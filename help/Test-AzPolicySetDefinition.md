@@ -1,5 +1,5 @@
 ---
-external help file: AzPolicyTest.psm1-Help.xml
+external help file: AzPolicyTest-help.xml
 Module Name: AzPolicyTest
 online version: https://github.com/tyconsulting/AzPolicyTest/blob/master/help/Test-AzPolicySetDefinition.md
 schema: 2.0.0
@@ -15,14 +15,14 @@ policy set) definitions
 
 ### NoOutputFile
 ```
-Test-AzPolicySetDefinition -path <String> [-ExcludeTags <String[]>] [-ProgressAction <ActionPreference>]
- [<CommonParameters>]
+Test-AzPolicySetDefinition -path <String> [-excludePath <String[]>] [-ExcludeTags <String[]>]
+ [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ### ProduceOutputFile
 ```
-Test-AzPolicySetDefinition -path <String> [-ExcludeTags <String[]>] -OutputFile <String>
- [-OutputFormat <String>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
+Test-AzPolicySetDefinition -path <String> [-excludePath <String[]>] [-ExcludeTags <String[]>]
+ -OutputFile <String> [-OutputFormat <String>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -60,6 +60,14 @@ C:\PS> Test-AzPolicySetDefinition -Path "C:\PolicyDefinitionFolder\" -OutputFile
 ```
 
 Test all Azure Policy initiative definitions in a folder, exclude tests with the `ParametersMaxCount` and `ParametersMinCount` tags and store the test result in a file.
+
+### EXAMPLE 5
+
+```powershell
+C:\PS> Test-AzPolicySetDefinition -Path "C:\PolicyDefinitionFolder\" -OutputFile "C:\Temp\MyTestResult.xml" -OutputFormat 'NUnitXML' -excludePath 'excludeFolder', 'main.json'
+```
+
+Test all Azure Policy initiative definitions in a folder, exclude all files in 'excludeFolder' folder and all files with the name 'main.json' then store the test result in a file with the 'NUnitXML' format.
 
 ## PARAMETERS
 
@@ -131,6 +139,21 @@ Accept wildcard characters: False
 Type: ActionPreference
 Parameter Sets: (All)
 Aliases: proga
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -excludePath
+Specify the excluded file paths for the policy set definition files.
+
+```yaml
+Type: String[]
+Parameter Sets: (All)
+Aliases:
 
 Required: False
 Position: Named

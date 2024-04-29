@@ -5,7 +5,7 @@
     "description": "When creating a Private Endpoint for a selected resource type, the Private Endpoint must be configured for manual approval.",
     "metadata": {
       "category": "TYANG - Network Security",
-      "version": "1.0.0"
+      "version": "1.0.0-preview"
     },
     "mode": "Indexed",
     "parameters": {

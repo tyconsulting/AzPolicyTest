@@ -1,5 +1,5 @@
 ---
-external help file: AzPolicyTest.psm1-Help.xml
+external help file: AzPolicyTest-help.xml
 Module Name: AzPolicyTest
 online version: https://github.com/tyconsulting/AzPolicyTest/blob/master/help/Test-JSONContent.md
 schema: 2.0.0
@@ -14,14 +14,14 @@ Perform Pester Test to validate syntax of JSON files.
 
 ### NoOutputFile
 ```
-Test-JSONContent -path <String> [-ExcludeTags <String[]>] [-ProgressAction <ActionPreference>]
- [<CommonParameters>]
+Test-JSONContent -path <String> [-excludePath <String[]>] [-ExcludeTags <String[]>]
+ [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ### ProduceOutputFile
 ```
-Test-JSONContent -path <String> [-ExcludeTags <String[]>] -OutputFile <String> [-OutputFormat <String>]
- [-ProgressAction <ActionPreference>] [<CommonParameters>]
+Test-JSONContent -path <String> [-excludePath <String[]>] [-ExcludeTags <String[]>] -OutputFile <String>
+ [-OutputFormat <String>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -60,6 +60,13 @@ C:\PS> Test-JSONContent -Path "C:\PolicyDefinitionFolder\" -OutputFile "C:\Temp\
 
 Perform JSON Syntax testing on all JSON files in a folder and its subfolders, exclude test with the `JsonSyntax` tag and store the test result in a file.
 
+### EXAMPLE 5
+
+```powershell
+C:\PS> Test-JSONContent -Path "C:\PolicyDefinitionFolder\" -OutputFile "C:\Temp\MyTestResult.xml" -OutputFormat 'NUnitXML' -excludePath 'excludeFolder', 'main.json'
+```
+
+Perform JSON Syntax testing on all JSON files in a folder and its subfolders, exclude all files in 'excludeFolder' folder and all files with the name 'main.json' then store the test result in a file with the 'NUnitXML' format.
 
 ## PARAMETERS
 
@@ -131,6 +138,21 @@ Accept wildcard characters: False
 Type: ActionPreference
 Parameter Sets: (All)
 Aliases: proga
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -excludePath
+Specify the excluded file paths for the policy definition files.
+
+```yaml
+Type: String[]
+Parameter Sets: (All)
+Aliases:
 
 Required: False
 Position: Named
