@@ -1,10 +1,14 @@
-# .EXTERNALHELP AzPolicyTest.psm1-Help.xml
+# .EXTERNALHELP AzPolicyTest-help.xml
 Function Test-JSONContent {
   [CmdLetBinding()]
   Param (
     [Parameter(Mandatory = $true, ValueFromPipeline = $true, ParameterSetName = 'ProduceOutputFile', HelpMessage = 'Specify the file paths for the policy definition files.')]
     [Parameter(Mandatory = $true, ValueFromPipeline = $true, ParameterSetName = 'NoOutputFile', HelpMessage = 'Specify the file paths for the policy definition files.')]
     [String]$path,
+
+    [Parameter(Mandatory = $false, ParameterSetName = 'ProduceOutputFile', HelpMessage = 'Specify the excluded file paths for the policy definition files.')]
+    [Parameter(Mandatory = $false, ParameterSetName = 'NoOutputFile', HelpMessage = 'Specify the excluded file paths for the policy definition files.')]
+    [String[]]$excludePath,
 
     [Parameter(Mandatory = $false, ParameterSetName = 'ProduceOutputFile', HelpMessage = 'Specify the tags for excluded tests.')]
     [Parameter(Mandatory = $false, ParameterSetName = 'NoOutputFile', HelpMessage = 'Specify the tags for excluded tests.')]
@@ -17,7 +21,8 @@ Function Test-JSONContent {
   $FileContentTestFilePath = Join-Path $PSScriptRoot 'fileContent.tests.ps1'
   Write-Verbose "JSON Content Pester Test file Path: '$DefinitionStructureTestFilePath'" -verbose
   $testContainerData = @{
-    path = $path
+    path        = $path
+    excludePath = $excludePath
   }
   $container = New-PesterContainer -Path $FileContentTestFilePath -Data $testContainerData
   $config = New-PesterConfiguration
@@ -41,13 +46,17 @@ Function Test-JSONContent {
   Invoke-Pester -Configuration $config
 }
 
-# .EXTERNALHELP AzPolicyTest.psm1-Help.xml
+# .EXTERNALHELP AzPolicyTest-help.xml
 Function Test-AzPolicyDefinition {
   [CmdLetBinding()]
   Param (
     [Parameter(Mandatory = $true, ValueFromPipeline = $true, ParameterSetName = 'ProduceOutputFile', HelpMessage = 'Specify the file paths for the policy definition files.')]
     [Parameter(Mandatory = $true, ValueFromPipeline = $true, ParameterSetName = 'NoOutputFile', HelpMessage = 'Specify the file paths for the policy definition files.')]
     [String]$path,
+
+    [Parameter(Mandatory = $false, ParameterSetName = 'ProduceOutputFile', HelpMessage = 'Specify the excluded file paths for the policy definition files.')]
+    [Parameter(Mandatory = $false, ParameterSetName = 'NoOutputFile', HelpMessage = 'Specify the excluded file paths for the policy definition files.')]
+    [String[]]$excludePath,
 
     [Parameter(Mandatory = $false, ParameterSetName = 'ProduceOutputFile', HelpMessage = 'Specify the tags for excluded tests.')]
     [Parameter(Mandatory = $false, ParameterSetName = 'NoOutputFile', HelpMessage = 'Specify the tags for excluded tests.')]
@@ -61,7 +70,8 @@ Function Test-AzPolicyDefinition {
   Write-Verbose "Policy Definition Pester Test file Path: '$DefinitionStructureTestFilePath'" -verbose
 
   $testContainerData = @{
-    path = $path
+    path        = $path
+    excludePath = $excludePath
   }
   $container = New-PesterContainer -Path $DefinitionStructureTestFilePath -Data $testContainerData
   $config = New-PesterConfiguration
@@ -85,13 +95,17 @@ Function Test-AzPolicyDefinition {
   Invoke-Pester -Configuration $config
 }
 
-# .EXTERNALHELP AzPolicyTest.psm1-Help.xml
+# .EXTERNALHELP AzPolicyTest-help.xml
 Function Test-AzPolicySetDefinition {
   [CmdLetBinding()]
   Param (
-    [Parameter(Mandatory = $true, ValueFromPipeline = $true, ParameterSetName = 'ProduceOutputFile', HelpMessage = 'Specify the file paths for the policy definition files.')]
-    [Parameter(Mandatory = $true, ValueFromPipeline = $true, ParameterSetName = 'NoOutputFile', HelpMessage = 'Specify the file paths for the policy definition files.')]
+    [Parameter(Mandatory = $true, ValueFromPipeline = $true, ParameterSetName = 'ProduceOutputFile', HelpMessage = 'Specify the file paths for the policy set definition files.')]
+    [Parameter(Mandatory = $true, ValueFromPipeline = $true, ParameterSetName = 'NoOutputFile', HelpMessage = 'Specify the file paths for the policy set definition files.')]
     [String]$path,
+
+    [Parameter(Mandatory = $false, ParameterSetName = 'ProduceOutputFile', HelpMessage = 'Specify the excluded file paths for the policy set definition files.')]
+    [Parameter(Mandatory = $false, ParameterSetName = 'NoOutputFile', HelpMessage = 'Specify the excluded file paths for the policy set definition files.')]
+    [String[]]$excludePath,
 
     [Parameter(Mandatory = $false, ParameterSetName = 'ProduceOutputFile', HelpMessage = 'Specify the tags for excluded tests.')]
     [Parameter(Mandatory = $false, ParameterSetName = 'NoOutputFile', HelpMessage = 'Specify the tags for excluded tests.')]
@@ -105,7 +119,8 @@ Function Test-AzPolicySetDefinition {
   Write-Verbose "Policy Initiative Pester Test file Path: '$DefinitionStructureTestFilePath'" -verbose
 
   $testContainerData = @{
-    path = $path
+    path        = $path
+    excludePath = $excludePath
   }
   $container = New-PesterContainer -Path $DefinitionStructureTestFilePath -Data $testContainerData
   $config = New-PesterConfiguration

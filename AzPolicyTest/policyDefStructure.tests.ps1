@@ -2,7 +2,8 @@
 
 [CmdletBinding()]
 Param (
-  [Parameter(Mandatory = $true)][validateScript({ Test-Path $_ })][string]$Path
+  [Parameter(Mandatory = $true)][validateScript({ Test-Path $_ })][string]$Path,
+  [Parameter(Mandatory = $false)][string[]]$excludePath
 )
 Write-Verbose "Path: '$Path'"
 
@@ -83,7 +84,18 @@ $global:validParameterTypes = @(
 #Get JSON files
 if ((Get-Item $path).PSIsContainer) {
   Write-Verbose "Specified path '$path' is a directory"
-  $files = Get-ChildItem $Path -Include *.json -Recurse
+  $gciParams = @{
+    Path    = $Path
+    Include = '*.json'
+    Recurse = $true
+  }
+  $files = Get-ChildItem @gciParams
+  #-Exclude parameter in Get-ChildItem only works on file name, not parent folder name hence it's not used in get-childitem
+  if ($excludePath) {
+    $excludePath = $excludePath -join "|"
+    $files = $files | where-object { $_.FullName -notmatch $excludePath }
+  }
+
 } else {
   Write-Verbose "Specified path '$path' is a file"
   $files = Get-Item $path -Include *.json
@@ -266,7 +278,7 @@ foreach ($file in $files) {
         param(
           [object] $json
         )
-        $json.properties.metadata.version -match '^\d+\.\d+.\d+$' | Should -Be $true
+        $json.properties.metadata.version -match '^\d+\.\d+.\d+(-preview|-deprecated)?$' | Should -Be $true
       }
     }
 
