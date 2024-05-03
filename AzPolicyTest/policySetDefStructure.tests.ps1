@@ -10,7 +10,7 @@ function IsParameterInUse {
     [object] $policySetObject,
     [string] $parameterName
   )
-  $parameterRegex = "^\[{1,2}parameters\(\'($parameterName)\'\)\]$"
+  $parameterRegex = "parameters\(\'($parameterName)\'\)"
   $bIsInUse = $false
   Foreach ($policyObject in $policySetObject.properties.policyDefinitions) {
     foreach ($name in $policyObject.parameters.PSObject.Properties.Name) {
