@@ -118,7 +118,7 @@ Foreach ($file in $files) {
       }
     }
 
-    Context "Policy Definition Properties Value Test" -Tag 'PolicySetProperties' {
+    Context "Policy Set Definition Properties Value Test" -Tag 'PolicySetProperties' {
 
       It "Properties must contain 'displayName' element" -TestCases $testCase -Tag 'DisplayNameExists' {
         param(
@@ -295,59 +295,66 @@ Foreach ($file in $files) {
       $i = 0
       Foreach ($policyDefinition in $json.properties.policyDefinitions) {
         $i++
+        try {
+          $policyDefinitionReferenceId = $policyDefinition.policyDefinitionReferenceId
+          $policyDefTestTitle = "Policy Definition #$i ($policyDefinitionReferenceId)"
+        } catch {
+          $policyDefTestTitle = "Policy Definition #$i"
+        }
+
         $policyDefinitionTestCase = @{
           policyDefinition = $policyDefinition
         }
 
-        It "Policy Definition #$i must contain 'policyDefinitionId' element" -TestCases $policyDefinitionTestCase -Tag 'PolicyDefinitionIdExists' {
+        It "$policyDefTestTitle must contain 'policyDefinitionId' element" -TestCases $policyDefinitionTestCase -Tag 'PolicyDefinitionIdExists' {
           param(
             [object] $policyDefinition
           )
           $policyDefinition.PSobject.properties.name -match 'policyDefinitionId' | Should -Not -Be $null
         }
 
-        It "'policyDefinitionId' in Policy Definition #$i must contain value" -TestCases $policyDefinitionTestCase -Tag 'PolicyDefinitionIdNotEmpty' {
+        It "'policyDefinitionId' in $policyDefTestTitle must contain value" -TestCases $policyDefinitionTestCase -Tag 'PolicyDefinitionIdNotEmpty' {
           param(
             [object] $policyDefinition
           )
           $policyDefinition.policyDefinitionId.length | Should -BeGreaterThan 0
         }
 
-        It "Policy Definition #$i must contain 'policyDefinitionReferenceId' element" -TestCases $policyDefinitionTestCase -Tag 'policyDefinitionReferenceIdExists' {
+        It "$policyDefTestTitle must contain 'policyDefinitionReferenceId' element" -TestCases $policyDefinitionTestCase -Tag 'policyDefinitionReferenceIdExists' {
           param(
             [object] $policyDefinition
           )
           $policyDefinition.PSobject.properties.name -match 'policyDefinitionReferenceId' | Should -Not -Be $null
         }
 
-        It "'policyDefinitionReferenceId' in Policy Definition #$i must contain value" -TestCases $policyDefinitionTestCase -Tag 'policyDefinitionReferenceIdNotEmpty' {
+        It "'policyDefinitionReferenceId' in $policyDefTestTitle must contain value" -TestCases $policyDefinitionTestCase -Tag 'policyDefinitionReferenceIdNotEmpty' {
           param(
             [object] $policyDefinition
           )
           $policyDefinition.policyDefinitionReferenceId.length | Should -BeGreaterThan 0
         }
 
-        It "Policy Definition #$i must contain 'parameters' element" -TestCases $policyDefinitionTestCase -Tag 'PolicyDefinitionParameterExists' {
+        It "$policyDefTestTitle must contain 'parameters' element" -TestCases $policyDefinitionTestCase -Tag 'PolicyDefinitionParameterExists' {
           param(
             [object] $policyDefinition
           )
           $policyDefinition.PSobject.properties.name -match 'parameters' | Should -Not -Be $null
         }
-        It "'parameters' in Policy Definition #$i must contain at least one item" -TestCases $policyDefinitionTestCase -Tag 'PolicyDefinitionParameterNotEmpty' {
+        It "'parameters' in $policyDefTestTitle must contain at least one item" -TestCases $policyDefinitionTestCase -Tag 'PolicyDefinitionParameterNotEmpty' {
           param(
             [object] $policyDefinition
           )
           $policyDefinition.parameters.PSObject.Properties.count | Should -BeGreaterThan 0
         }
 
-        It "Policy Definition #$i must contain 'groupNames' element" -TestCases $policyDefinitionTestCase -Tag 'PolicyDefinitionGroupNamesExists' {
+        It "$policyDefTestTitle must contain 'groupNames' element" -TestCases $policyDefinitionTestCase -Tag 'PolicyDefinitionGroupNamesExists' {
           param(
             [object] $policyDefinition
           )
           $policyDefinition.PSobject.properties.name -match 'groupNames' | Should -Not -Be $null
         }
 
-        It "'groupNames' in Policy Definition #$i must contain at least one item" -TestCases $policyDefinitionTestCase -Tag 'PolicyDefinitionGroupNamesNotEmpty' {
+        It "'groupNames' in $policyDefTestTitle must contain at least one item" -TestCases $policyDefinitionTestCase -Tag 'PolicyDefinitionGroupNamesNotEmpty' {
           param(
             [object] $policyDefinition
           )
