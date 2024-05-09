@@ -2,3 +2,5 @@ coverage.xml
 testResults.xml
 .DS_Store
 *.test.xml
+*test*.xml
+*TEST*.xml
