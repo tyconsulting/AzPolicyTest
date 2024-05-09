@@ -4,7 +4,14 @@ Param (
   [Parameter(Mandatory = $false)][string[]]$excludePath
 )
 Write-Verbose "Path: '$Path'"
-
+function CountPolicyDefinitionReferenceId {
+  param(
+    [object] $policySetObject,
+    [string] $policyDefinitionReferenceId
+  )
+  $policy = $policySetObject.properties.policyDefinitions | where-object {$_.policyDefinitionReferenceId -ieq $policyDefinitionReferenceId}
+  $policy.count
+}
 function IsParameterInUse {
   param(
     [object] $policySetObject,
@@ -304,6 +311,7 @@ Foreach ($file in $files) {
 
         $policyDefinitionTestCase = @{
           policyDefinition = $policyDefinition
+          policyDefinitionReferenceIdCount = CountPolicyDefinitionReferenceId -policySetObject $json -policyDefinitionReferenceId $policyDefinition.policyDefinitionReferenceId
         }
 
         It "$policyDefTestTitle must contain 'policyDefinitionId' element" -TestCases $policyDefinitionTestCase -Tag 'PolicyDefinitionIdExists' {
@@ -333,7 +341,13 @@ Foreach ($file in $files) {
           )
           $policyDefinition.policyDefinitionReferenceId.length | Should -BeGreaterThan 0
         }
-
+        It "'policyDefinitionReferenceId' in $policyDefTestTitle must be only used One (1) time" -TestCases $policyDefinitionTestCase -Tag 'noDuplicatePolicyDefinitionReferenceId' {
+          param(
+            [object] $policyDefinition,
+            [int]$policyDefinitionReferenceIdCount
+          )
+          $policyDefinitionReferenceIdCount | Should -Be 1
+        }
         It "$policyDefTestTitle must contain 'parameters' element" -TestCases $policyDefinitionTestCase -Tag 'PolicyDefinitionParameterExists' {
           param(
             [object] $policyDefinition
