@@ -395,7 +395,7 @@ foreach ($file in $files) {
         param(
           [object] $json
         )
-        $json.properties.policyRule.then.details.PSobject.Properties.name -cmatch 'roleDefinitionIds' | Should -Be $false
+        $json.properties.policyRule.then.details.PSobject.Properties.name -cmatch 'roleDefinitionIds' | Should -Not -Be $true
       }
     }
 
