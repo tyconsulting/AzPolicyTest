@@ -3,4 +3,5 @@ testResults.xml
 .DS_Store
 *.test.xml
 *test*.xml
+*Test*.xml
 *TEST*.xml
