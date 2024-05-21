@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>AzPolicyTest</id>
-    <version>2.4.0</version>
+    <version>2.5.0</version>
     <authors>Tao Yang</authors>
     <owners>TY Consulting Pty Ltd</owners>
     <description>Provides pre-defined pester tests for Azure Policy and Initiative definitions</description>
