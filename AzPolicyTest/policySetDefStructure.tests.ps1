@@ -83,14 +83,14 @@ Foreach ($file in $files) {
         param(
           [object] $json
         )
-        $json.PSobject.Properties.name -match 'name' | Should -Not -Be $Null
+        $json.PSobject.Properties.name -cmatch 'name' | Should -Not -Be $Null
       }
 
       It "Should contain top-level element - properties" -TestCases $testCase {
         param(
           [object] $json
         )
-        $json.PSobject.Properties.name -match 'properties' | Should -Not -Be $Null
+        $json.PSobject.Properties.name -cmatch 'properties' | Should -Not -Be $Null
       }
     }
 
@@ -131,7 +131,7 @@ Foreach ($file in $files) {
         param(
           [object] $json
         )
-        $json.properties.PSobject.Properties.name -match 'displayName' | Should -Not -Be $Null
+        $json.properties.PSobject.Properties.name -cmatch 'displayName' | Should -Not -Be $Null
       }
 
       It "'DisplayName' value must not be longer than 128 characters" -TestCases $testCase -Tag 'DisplayNameLength' {
@@ -145,7 +145,7 @@ Foreach ($file in $files) {
         param(
           [object] $json
         )
-        $json.properties.PSobject.Properties.name -match 'description' | Should -Not -Be $Null
+        $json.properties.PSobject.Properties.name -cmatch 'description' | Should -Not -Be $Null
       }
 
       It "'description' value must not be longer than 512 characters" -TestCases $testCase -Tag 'DescriptionLength' {
@@ -159,14 +159,14 @@ Foreach ($file in $files) {
         param(
           [object] $json
         )
-        $json.properties.PSobject.Properties.name -match 'metadata' | Should -Not -Be $Null
+        $json.properties.PSobject.Properties.name -cmatch 'metadata' | Should -Not -Be $Null
       }
 
       It "Properties must contain 'parameters' element" -TestCases $testCase -Tag 'ParametersExists' {
         param(
           [object] $json
         )
-        $json.properties.PSobject.Properties.name -match 'parameters' | Should -Not -Be $Null
+        $json.properties.PSobject.Properties.name -cmatch 'parameters' | Should -Not -Be $Null
       }
 
       It "'parameters' element must contain at least one (1) item" -TestCases $testCase -Tag "ParametersMinCount" {
@@ -187,7 +187,7 @@ Foreach ($file in $files) {
         param(
           [object] $json
         )
-        $json.properties.PSobject.Properties.name -match 'policyDefinitions' | Should -Not -Be $Null
+        $json.properties.PSobject.Properties.name -cmatch 'policyDefinitions' | Should -Not -Be $Null
       }
 
       It "'policyDefinitions' element must contain at least one item" -TestCases $testCase -Tag 'PolicyDefinitionsCount' {
@@ -201,7 +201,7 @@ Foreach ($file in $files) {
         param(
           [object] $json
         )
-        $json.properties.PSobject.Properties.name -match 'policyDefinitionGroups' | Should -Not -Be $Null
+        $json.properties.PSobject.Properties.name -cmatch 'policyDefinitionGroups' | Should -Not -Be $Null
       }
 
       It "'policyDefinitionGroups' element must contain at least one item" -TestCases $testCase -Tag 'PolicyDefinitionGroupsCount' {
@@ -243,7 +243,7 @@ Foreach ($file in $files) {
         param(
           [object] $json
         )
-        $json.properties.metadata.version -match '^\d+\.\d+.\d+(-preview|-deprecated)?$' | Should -Be $true
+        $json.properties.metadata.version -cmatch '^\d+\.\d+.\d+(-preview|-deprecated)?$' | Should -Be $true
       }
     }
 
@@ -261,7 +261,7 @@ Foreach ($file in $files) {
             [string] $parameterName,
             [object] $parameterConfig
           )
-          $parameterConfig.PSobject.Properties.name -match 'type' | Should -Not -Be $null
+          $parameterConfig.PSobject.Properties.name -cmatch 'type' | Should -Not -Be $null
         }
 
         It "Parameter [<parameterName>] must have a valid value for the 'type' element" -TestCases $parameterTestCase -Tag 'ParameterTypeValid' {
@@ -277,7 +277,7 @@ Foreach ($file in $files) {
             [string] $parameterName,
             [object] $parameterConfig
           )
-          $parameterConfig.metadata.PSobject.Properties.name -match 'displayName' | Should -Not -Be $null
+          $parameterConfig.metadata.PSobject.Properties.name -cmatch 'displayName' | Should -Not -Be $null
         }
 
         It "Parameter [<parameterName>] metadata must contain 'description' element" -TestCases $parameterTestCase -Tag 'ParameterDescriptionExists' {
@@ -285,7 +285,7 @@ Foreach ($file in $files) {
             [string] $parameterName,
             [object] $parameterConfig
           )
-          $parameterConfig.metadata.PSobject.Properties.name -match 'description' | Should -Not -Be $null
+          $parameterConfig.metadata.PSobject.Properties.name -cmatch 'description' | Should -Not -Be $null
         }
 
         It "Parameter [<parameterName>] must not be unused" -TestCases $parameterTestCase -Tag 'ParameterNotUnused' {
@@ -318,7 +318,7 @@ Foreach ($file in $files) {
           param(
             [object] $policyDefinition
           )
-          $policyDefinition.PSobject.properties.name -match 'policyDefinitionId' | Should -Not -Be $null
+          $policyDefinition.PSobject.properties.name -cmatch 'policyDefinitionId' | Should -Not -Be $null
         }
 
         It "'policyDefinitionId' in $policyDefTestTitle must contain value" -TestCases $policyDefinitionTestCase -Tag 'PolicyDefinitionIdNotEmpty' {
@@ -332,7 +332,7 @@ Foreach ($file in $files) {
           param(
             [object] $policyDefinition
           )
-          $policyDefinition.PSobject.properties.name -match 'policyDefinitionReferenceId' | Should -Not -Be $null
+          $policyDefinition.PSobject.properties.name -cmatch 'policyDefinitionReferenceId' | Should -Not -Be $null
         }
 
         It "'policyDefinitionReferenceId' in $policyDefTestTitle must contain value" -TestCases $policyDefinitionTestCase -Tag 'policyDefinitionReferenceIdNotEmpty' {
@@ -352,7 +352,7 @@ Foreach ($file in $files) {
           param(
             [object] $policyDefinition
           )
-          $policyDefinition.PSobject.properties.name -match 'parameters' | Should -Not -Be $null
+          $policyDefinition.PSobject.properties.name -cmatch 'parameters' | Should -Not -Be $null
         }
         It "'parameters' in $policyDefTestTitle must contain at least one item" -TestCases $policyDefinitionTestCase -Tag 'PolicyDefinitionParameterNotEmpty' {
           param(
@@ -365,7 +365,7 @@ Foreach ($file in $files) {
           param(
             [object] $policyDefinition
           )
-          $policyDefinition.PSobject.properties.name -match 'groupNames' | Should -Not -Be $null
+          $policyDefinition.PSobject.properties.name -cmatch 'groupNames' | Should -Not -Be $null
         }
 
         It "'groupNames' in $policyDefTestTitle must contain at least one item" -TestCases $policyDefinitionTestCase -Tag 'PolicyDefinitionGroupNamesNotEmpty' {
