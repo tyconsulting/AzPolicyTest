@@ -176,11 +176,25 @@ foreach ($file in $files) {
         $json.properties.PSobject.Properties.name -cmatch 'displayName' | Should -Not -Be $Null
       }
 
-      It "'DisplayName' value must not be longer than 128 characters" -TestCases $testCase -Tag 'DisplayNameLength' {
+      It "'displayName' value must not be longer than 128 characters" -TestCases $testCase -Tag 'DisplayNameLength' {
         param(
           [object] $json
         )
         $json.properties.displayName.length | Should -BeLessOrEqual 128
+      }
+
+      It "'displayName' value must not have leading and trailing spaces" -TestCases $testCase -Tag 'DisplayNameStartsOrEndsWithSpace' {
+        param(
+          [object] $json
+        )
+        $json.properties.displayName.length -eq $json.properties.displayName.trim().length | Should -Be $true
+      }
+
+      It "'displayName' value must not end with a period '.'" -TestCases $testcase -Tag 'DisplayNameNotEndsWithPeriod' {
+        param(
+          [object] $json
+        )
+        $json.properties.displayName.substring($json.properties.displayName.length -1, 1) | Should -Not -Be '.'
       }
 
       It "Properties must contain 'description' element" -TestCases $testCase -Tag 'DescriptionExists' {
@@ -195,6 +209,13 @@ foreach ($file in $files) {
           [object] $json
         )
         $json.properties.description.length | Should -BeLessOrEqual 512
+      }
+
+      It "'description' value must not have leading and trailing spaces" -TestCases $testCase -Tag 'DescriptionStartsOrEndsWithSpace' {
+        param(
+          [object] $json
+        )
+        $json.properties.description.length -eq $json.properties.description.trim().length | Should -Be $true
       }
 
       It "Properties must contain 'metadata' element" -TestCases $testCase -Tag 'MetadataExists' {
@@ -296,6 +317,16 @@ foreach ($file in $files) {
             [object] $parameterConfig
           )
           $parameterConfig.PSobject.Properties.name -cmatch 'type' | Should -Not -Be $null
+        }
+
+        It "Parameter [<parameterName>] default value must be a member of allowed values" -TestCases ($parameterTestCase | where-Object { $_.parameterConfig.PSObject.properties.name -icontains 'allowedValues' -and $_.parameterConfig.PSObject.properties.name -icontains 'defaultValue' }) -Tag 'ParameterDefaultValueValid' {
+          param(
+            [string] $parameterName,
+            [object] $parameterConfig
+          )
+          if ($parameterConfig.allowedValues) {
+            $parameterConfig.allowedValues -contains $parameterConfig.defaultValue | Should -Be $true
+          }
         }
 
         It "Parameter [<parameterName>] must have a valid value for the 'type' element" -TestCases $parameterTestCase -Tag 'ParameterTypeValid' {
