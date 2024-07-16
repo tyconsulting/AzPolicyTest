@@ -16,7 +16,20 @@
           "description": "The list of locations that can be specified when deploying resources.",
           "strongType": "location",
           "displayName": "Allowed locations"
-        }
+        },
+        "allowedValues":[
+          "australiaEast",
+          "australiaSoutheast",
+          "australiaCentral",
+          "eastUS",
+          "southEastAsia",
+          "westEurope"
+        ],
+        "defaultValue":[
+          "australiaEast",
+          "australiaSoutheast",
+          "australiaCentral"
+        ]
       },
       "effect": {
         "type": "String",

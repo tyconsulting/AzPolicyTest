@@ -325,7 +325,18 @@ foreach ($file in $files) {
             [object] $parameterConfig
           )
           if ($parameterConfig.allowedValues) {
-            $parameterConfig.allowedValues -contains $parameterConfig.defaultValue | Should -Be $true
+            if ($parameterConfig.type -ieq 'array')
+            {
+              $allInAllowedValues = $true
+              foreach ($d in $parameterConfig.defaultValue) {
+                if ($parameterConfig.allowedValues -notcontains $d) {$allInAllowedValues = $false}
+              }
+              $allInAllowedValues | Should -Be $true
+            }
+            else
+            {
+              $parameterConfig.allowedValues -contains $parameterConfig.defaultValue | Should -Be $true
+            }
           }
         }
 
