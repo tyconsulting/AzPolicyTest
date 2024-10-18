@@ -4,11 +4,11 @@ Function Test-JSONContent {
   Param (
     [Parameter(Mandatory = $true, ValueFromPipeline = $true, ParameterSetName = 'ProduceOutputFile', HelpMessage = 'Specify the file paths for the policy definition files.')]
     [Parameter(Mandatory = $true, ValueFromPipeline = $true, ParameterSetName = 'NoOutputFile', HelpMessage = 'Specify the file paths for the policy definition files.')]
-    [String]$path,
+    [String]$Path,
 
     [Parameter(Mandatory = $false, ParameterSetName = 'ProduceOutputFile', HelpMessage = 'Specify the excluded file paths for the policy definition files.')]
     [Parameter(Mandatory = $false, ParameterSetName = 'NoOutputFile', HelpMessage = 'Specify the excluded file paths for the policy definition files.')]
-    [String[]]$excludePath,
+    [String[]]$ExcludePath,
 
     [Parameter(Mandatory = $false, ParameterSetName = 'ProduceOutputFile', HelpMessage = 'Specify the tags for excluded tests.')]
     [Parameter(Mandatory = $false, ParameterSetName = 'NoOutputFile', HelpMessage = 'Specify the tags for excluded tests.')]
@@ -21,8 +21,8 @@ Function Test-JSONContent {
   $FileContentTestFilePath = Join-Path $PSScriptRoot 'fileContent.tests.ps1'
   Write-Verbose "JSON Content Pester Test file Path: '$DefinitionStructureTestFilePath'" -verbose
   $testContainerData = @{
-    path        = $path
-    excludePath = $excludePath
+    path        = $Path
+    excludePath = $ExcludePath
   }
   $container = New-PesterContainer -Path $FileContentTestFilePath -Data $testContainerData
   $config = New-PesterConfiguration
@@ -52,11 +52,11 @@ Function Test-AzPolicyDefinition {
   Param (
     [Parameter(Mandatory = $true, ValueFromPipeline = $true, ParameterSetName = 'ProduceOutputFile', HelpMessage = 'Specify the file paths for the policy definition files.')]
     [Parameter(Mandatory = $true, ValueFromPipeline = $true, ParameterSetName = 'NoOutputFile', HelpMessage = 'Specify the file paths for the policy definition files.')]
-    [String]$path,
+    [String]$Path,
 
     [Parameter(Mandatory = $false, ParameterSetName = 'ProduceOutputFile', HelpMessage = 'Specify the excluded file paths for the policy definition files.')]
     [Parameter(Mandatory = $false, ParameterSetName = 'NoOutputFile', HelpMessage = 'Specify the excluded file paths for the policy definition files.')]
-    [String[]]$excludePath,
+    [String[]]$ExcludePath,
 
     [Parameter(Mandatory = $false, ParameterSetName = 'ProduceOutputFile', HelpMessage = 'Specify the tags for excluded tests.')]
     [Parameter(Mandatory = $false, ParameterSetName = 'NoOutputFile', HelpMessage = 'Specify the tags for excluded tests.')]
@@ -70,8 +70,8 @@ Function Test-AzPolicyDefinition {
   Write-Verbose "Policy Definition Pester Test file Path: '$DefinitionStructureTestFilePath'" -verbose
 
   $testContainerData = @{
-    path        = $path
-    excludePath = $excludePath
+    path        = $Path
+    excludePath = $ExcludePath
   }
   $container = New-PesterContainer -Path $DefinitionStructureTestFilePath -Data $testContainerData
   $config = New-PesterConfiguration
@@ -101,11 +101,11 @@ Function Test-AzPolicySetDefinition {
   Param (
     [Parameter(Mandatory = $true, ValueFromPipeline = $true, ParameterSetName = 'ProduceOutputFile', HelpMessage = 'Specify the file paths for the policy set definition files.')]
     [Parameter(Mandatory = $true, ValueFromPipeline = $true, ParameterSetName = 'NoOutputFile', HelpMessage = 'Specify the file paths for the policy set definition files.')]
-    [String]$path,
+    [String]$Path,
 
     [Parameter(Mandatory = $false, ParameterSetName = 'ProduceOutputFile', HelpMessage = 'Specify the excluded file paths for the policy set definition files.')]
     [Parameter(Mandatory = $false, ParameterSetName = 'NoOutputFile', HelpMessage = 'Specify the excluded file paths for the policy set definition files.')]
-    [String[]]$excludePath,
+    [String[]]$ExcludePath,
 
     [Parameter(Mandatory = $false, ParameterSetName = 'ProduceOutputFile', HelpMessage = 'Specify the tags for excluded tests.')]
     [Parameter(Mandatory = $false, ParameterSetName = 'NoOutputFile', HelpMessage = 'Specify the tags for excluded tests.')]
@@ -119,8 +119,8 @@ Function Test-AzPolicySetDefinition {
   Write-Verbose "Policy Initiative Pester Test file Path: '$DefinitionStructureTestFilePath'" -verbose
 
   $testContainerData = @{
-    path        = $path
-    excludePath = $excludePath
+    path        = $Path
+    excludePath = $ExcludePath
   }
   $container = New-PesterContainer -Path $DefinitionStructureTestFilePath -Data $testContainerData
   $config = New-PesterConfiguration
@@ -149,18 +149,18 @@ Function GetRelativeFilePath {
   Param (
     [Parameter(Mandatory = $true)]
     [ValidateScript({ Test-Path $_ })]
-    [String]$path
+    [String]$Path
   )
   #Try to get git root directory
-  if ((Get-Item $path).PSIsContainer) {
-    $gitRoot = GetGitRoot -path $path
+  if ((Get-Item $Path).PSIsContainer) {
+    $gitRoot = GetGitRoot -path $Path
   } else {
-    $gitRoot = GetGitRoot -path (Get-Item $path).Directory
+    $gitRoot = GetGitRoot -path (Get-Item $Path).Directory
   }
   if ($gitRoot) {
-    $relativePath = Resolve-Path -Path $path -RelativeBasePath $gitRoot -Relative
+    $relativePath = Resolve-Path -Path $Path -RelativeBasePath $gitRoot -Relative
   } else {
-    $relativePath = $path
+    $relativePath = $Path
   }
   $relativePath
 }
@@ -170,13 +170,13 @@ Function GetGitRoot {
   Param (
     [Parameter(Mandatory = $true, ValueFromPipeline = $true, HelpMessage = 'Specify the folder path.')]
     [ValidateScript({ Test-Path $_ -PathType Container })]
-    [String]$path
+    [String]$Path
   )
   #store the current Directory in a variable
   $currentDir = $pwd
 
   #Change the working directory to the specified path
-  Set-Location $path
+  Set-Location $Path
 
   #Check if the current directory is inside a git repository
   try {
@@ -191,7 +191,7 @@ Function GetGitRoot {
       $gitRootDir = Convert-Path $gitRootDir
     }
   } else {
-    Write-Verbose "The specified path '$path' is not inside a git repository or git command tool is not installed."
+    Write-Verbose "The specified path '$Path' is not inside a git repository or git command tool is not installed."
   }
 
   #Change the working directory back to the original directory
