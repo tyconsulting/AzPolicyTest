@@ -33,7 +33,7 @@ function IsParameterInUse {
   $bIsInUse
 }
 #variables
-$TestName = "Policy Set Definition Syntax Test"
+$TestName = 'Policy Set Definition Syntax Test'
 
 $global:validParameterTypes = @(
   'string',
@@ -50,18 +50,18 @@ if ((Get-Item $path).PSIsContainer) {
   Write-Verbose "Specified path '$path' is a directory"
   $gciParams = @{
     Path    = $Path
-    Include = '*.json'
+    Include = '*.json', '*.jsonc'
     Recurse = $true
   }
   $files = Get-ChildItem @gciParams
   #-Exclude parameter in Get-ChildItem only works on file name, not parent folder name hence it's not used in get-childitem
   if ($excludePath) {
-    $excludePath = $excludePath -join "|"
+    $excludePath = $excludePath -join '|'
     $files = $files | where-object { $_.FullName -notmatch $excludePath }
   }
 } else {
   Write-Verbose "Specified path '$path' is a file"
-  $files = Get-Item $path -Include *.json
+  $files = Get-Item $path -Include '*.json', '*.jsonc'
 }
 
 Foreach ($file in $files) {
@@ -75,18 +75,18 @@ Foreach ($file in $files) {
     json             = $json
     fileRelativePath = $fileRelativePath
   }
-  Describe "[$fileRelativePath]:: $TestName" -Tag "policyDefSyntax" {
+  Describe "[$fileRelativePath]:: $TestName" -Tag 'policyDefSyntax' {
 
-    Context "Required Top-Level Elements Test" -Tag "TopLevelElements" {
+    Context 'Required Top-Level Elements Test' -Tag 'TopLevelElements' {
 
-      It "Should contain top-level element - name" -TestCases $testCase {
+      It 'Should contain top-level element - name' -TestCases $testCase {
         param(
           [object] $json
         )
         $json.PSobject.Properties.name -cmatch 'name' | Should -Not -Be $Null
       }
 
-      It "Should contain top-level element - properties" -TestCases $testCase {
+      It 'Should contain top-level element - properties' -TestCases $testCase {
         param(
           [object] $json
         )
@@ -94,30 +94,30 @@ Foreach ($file in $files) {
       }
     }
 
-    Context "Policy Set Definition Elements Value Test" -Tag 'PolicySetElements' {
+    Context 'Policy Set Definition Elements Value Test' -Tag 'PolicySetElements' {
 
-      It "Name value must not be null" -TestCases $testCase {
+      It 'Name value must not be null' -TestCases $testCase {
         param(
           [object] $json
         )
         $json.name.length | Should -BeGreaterThan 0
       }
 
-      It "Name value must not be longer than 64 characters" -TestCases $testCase -Tag 'NameLength' {
+      It 'Name value must not be longer than 64 characters' -TestCases $testCase -Tag 'NameLength' {
         param(
           [object] $json
         )
         $json.name.length | Should -BeLessOrEqual 64
       }
 
-      It "Name value must not contain spaces" -TestCases $testCase {
+      It 'Name value must not contain spaces' -TestCases $testCase {
         param(
           [object] $json
         )
         $json.name -match ' ' | Should -Be $false
       }
 
-      It "Name value must not contain forbidden characters" -TestCases $testCase -Tag 'NameForbiddenCharacters' {
+      It 'Name value must not contain forbidden characters' -TestCases $testCase -Tag 'NameForbiddenCharacters' {
         param(
           [object] $json
         )
@@ -125,7 +125,7 @@ Foreach ($file in $files) {
       }
     }
 
-    Context "Policy Set Definition Properties Value Test" -Tag 'PolicySetProperties' {
+    Context 'Policy Set Definition Properties Value Test' -Tag 'PolicySetProperties' {
 
       It "Properties must contain 'displayName' element" -TestCases $testCase -Tag 'DisplayNameExists' {
         param(
@@ -190,7 +190,7 @@ Foreach ($file in $files) {
         $json.properties.PSobject.Properties.name -cmatch 'parameters' | Should -Not -Be $Null
       }
 
-      It "'parameters' element must contain at least one (1) item" -TestCases $testCase -Tag "ParametersMinCount" {
+      It "'parameters' element must contain at least one (1) item" -TestCases $testCase -Tag 'ParametersMinCount' {
         param(
           [object] $json
         )
@@ -268,7 +268,7 @@ Foreach ($file in $files) {
       }
     }
 
-    Context "Parameters Tests" -Tag 'Parameters' {
+    Context 'Parameters Tests' -Tag 'Parameters' {
       Foreach ($parameterName in $json.properties.parameters.PSObject.Properties.Name) {
         $parameterConfig = $json.properties.parameters.$parameterName
         $parameterTestCase = @{
@@ -285,22 +285,19 @@ Foreach ($file in $files) {
           $parameterConfig.PSobject.Properties.name -cmatch 'type' | Should -Not -Be $null
         }
 
-        It "Parameter [<parameterName>] default value must be a member of allowed values" -TestCases ($parameterTestCase | where-Object { $_.parameterConfig.PSObject.properties.name -icontains 'allowedValues' -and $_.parameterConfig.PSObject.properties.name -icontains 'defaultValue' }) -Tag 'ParameterDefaultValueValid' {
+        It 'Parameter [<parameterName>] default value must be a member of allowed values' -TestCases ($parameterTestCase | where-Object { $_.parameterConfig.PSObject.properties.name -icontains 'allowedValues' -and $_.parameterConfig.PSObject.properties.name -icontains 'defaultValue' }) -Tag 'ParameterDefaultValueValid' {
           param(
             [string] $parameterName,
             [object] $parameterConfig
           )
           if ($parameterConfig.allowedValues) {
-            if ($parameterConfig.type -ieq 'array')
-            {
+            if ($parameterConfig.type -ieq 'array') {
               $allInAllowedValues = $true
               foreach ($d in $parameterConfig.defaultValue) {
                 if ($parameterConfig.allowedValues -notcontains $d) {$allInAllowedValues = $false}
               }
               $allInAllowedValues | Should -Be $true
-            }
-            else
-            {
+            } else {
               $parameterConfig.allowedValues -contains $parameterConfig.defaultValue | Should -Be $true
             }
           }
@@ -330,7 +327,7 @@ Foreach ($file in $files) {
           $parameterConfig.metadata.PSobject.Properties.name -cmatch 'description' | Should -Not -Be $null
         }
 
-        It "Parameter [<parameterName>] must not be unused" -TestCases $parameterTestCase -Tag 'ParameterNotUnused' {
+        It 'Parameter [<parameterName>] must not be unused' -TestCases $parameterTestCase -Tag 'ParameterNotUnused' {
           param(
             [string] $parameterName,
             [boolean] $parameterInUse
@@ -340,7 +337,7 @@ Foreach ($file in $files) {
       }
     }
 
-    Context "Policy Definitions Test" -Tag 'PolicyDefinitions' {
+    Context 'Policy Definitions Test' -Tag 'PolicyDefinitions' {
       $i = 0
       Foreach ($policyDefinition in $json.properties.policyDefinitions) {
         $i++
