@@ -180,13 +180,13 @@ Function GetGitRoot {
 
   #Check if the current directory is inside a git repository
   try {
-    $isGitRepo = Invoke-Expression 'git rev-parse --is-inside-work-tree 2>&1' -ErrorAction SilentlyContinue
+    $isGitRepo = Invoke-Expression -Command 'git rev-parse --is-inside-work-tree 2>&1' -ErrorAction SilentlyContinue
   } catch {
     $isGitRepo = 'false'
   }
   if ($isGitRepo -eq 'true') {
     #Get the root directory of the git repository
-    $gitRootDir = Invoke-expression 'git rev-parse --show-toplevel 2>&1' -ErrorAction SilentlyContinue
+    $gitRootDir = Invoke-expression -Command 'git rev-parse --show-toplevel 2>&1' -ErrorAction SilentlyContinue
     if (Test-Path $gitRootDir) {
       $gitRootDir = Convert-Path $gitRootDir
     }
