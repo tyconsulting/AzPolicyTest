@@ -22,13 +22,16 @@ Function Test-JSONContent {
     [ValidateSet('NUnitXml', 'LegacyNUnitXML')]
     [string] $OutputFormat = 'NUnitXml'
   )
-  #Test files
+
+  # Test files
   $FileContentTestFilePath = Join-Path $PSScriptRoot 'fileContent.tests.ps1'
   Write-Verbose "JSON Content Pester Test file Path: '$DefinitionStructureTestFilePath'" -verbose
   $testContainerData = @{
     path        = $Path
     excludePath = $ExcludePath
   }
+
+  # Create Pester configuration
   $container = New-PesterContainer -Path $FileContentTestFilePath -Data $testContainerData
   $config = New-PesterConfiguration
   $config.Run.Container = $container
@@ -38,16 +41,20 @@ Function Test-JSONContent {
   $config.TestResult.TestSuiteName = 'Json Content Tests'
   $config.should.ErrorAction = 'Continue'
 
-  #File Content tests
+  # Configure Pester test result output based on parameter set name
   if ($PSCmdlet.ParameterSetName -eq 'ProduceOutputFile') {
     $config.TestResult.OutputFormat = $OutputFormat
     $config.TestResult.OutputPath = $OutputFile
+  } else {
+    $config.TestResult.Enabled = $false
   }
 
+  # Configure Pester to exclude tags if present
   if ($ExcludeTags.count -gt 0) {
     $config.Filter.ExcludeTag = $ExcludeTags
   }
 
+  # Invoke Pester
   Invoke-Pester -Configuration $config
 }
 
@@ -75,14 +82,16 @@ Function Test-AzPolicyDefinition {
     [ValidateSet('NUnitXml', 'LegacyNUnitXML')]
     [string] $OutputFormat = 'NUnitXml'
   )
-  #Test files
+
+  # Test files
   $DefinitionStructureTestFilePath = join-path $PSScriptRoot 'policyDefStructure.tests.ps1'
   Write-Verbose "Policy Definition Pester Test file Path: '$DefinitionStructureTestFilePath'" -verbose
-
   $testContainerData = @{
     path        = $Path
     excludePath = $ExcludePath
   }
+
+  # Create Pester configuration
   $container = New-PesterContainer -Path $DefinitionStructureTestFilePath -Data $testContainerData
   $config = New-PesterConfiguration
   $config.Run.Container = $container
@@ -92,16 +101,20 @@ Function Test-AzPolicyDefinition {
   $config.TestResult.TestSuiteName = 'Policy Definition Tests'
   $config.should.ErrorAction = 'Continue'
 
-  #Policy Definition tests
+  # Configure Pester test result output based on parameter set name
   if ($PSCmdlet.ParameterSetName -eq 'ProduceOutputFile') {
     $config.TestResult.OutputFormat = $OutputFormat
     $config.TestResult.OutputPath = $OutputFile
+  } else {
+    $config.TestResult.Enabled = $false
   }
 
+  # Configure Pester to exclude tags if present
   if ($ExcludeTags.count -gt 0) {
     $config.Filter.ExcludeTag = $ExcludeTags
   }
 
+  # Invoke Pester
   Invoke-Pester -Configuration $config
 }
 
@@ -129,14 +142,16 @@ Function Test-AzPolicySetDefinition {
     [ValidateSet('NUnitXml', 'LegacyNUnitXML')]
     [string] $OutputFormat = 'NUnitXml'
   )
-  #Test files
+
+  # Test files
   $DefinitionStructureTestFilePath = join-path $PSScriptRoot 'policySetDefStructure.tests.ps1'
   Write-Verbose "Policy Initiative Pester Test file Path: '$DefinitionStructureTestFilePath'" -verbose
-
   $testContainerData = @{
     path        = $Path
     excludePath = $ExcludePath
   }
+
+  # Create Pester configuration
   $container = New-PesterContainer -Path $DefinitionStructureTestFilePath -Data $testContainerData
   $config = New-PesterConfiguration
   $config.Run.Container = $container
@@ -146,16 +161,20 @@ Function Test-AzPolicySetDefinition {
   $config.TestResult.TestSuiteName = 'JPolicy Initiative Tests'
   $config.should.ErrorAction = 'Continue'
 
-  #Policy Initiative tests
+  # Configure Pester test result output based on parameter set name
   if ($PSCmdlet.ParameterSetName -eq 'ProduceOutputFile') {
     $config.TestResult.OutputFormat = $OutputFormat
     $config.TestResult.OutputPath = $OutputFile
+  } else {
+    $config.TestResult.Enabled = $false
   }
 
+  # Configure Pester to exclude tags if present
   if ($ExcludeTags.count -gt 0) {
     $config.Filter.ExcludeTag = $ExcludeTags
   }
 
+  # Invoke Pester
   Invoke-Pester -Configuration $config
 }
 
