@@ -4,18 +4,23 @@ Function Test-JSONContent {
   Param (
     [Parameter(Mandatory = $true, ValueFromPipeline = $true, ParameterSetName = 'ProduceOutputFile', HelpMessage = 'Specify the file paths for the policy definition files.')]
     [Parameter(Mandatory = $true, ValueFromPipeline = $true, ParameterSetName = 'NoOutputFile', HelpMessage = 'Specify the file paths for the policy definition files.')]
-    [String]$Path,
+    [String] $Path,
 
     [Parameter(Mandatory = $false, ParameterSetName = 'ProduceOutputFile', HelpMessage = 'Specify the excluded file paths for the policy definition files.')]
     [Parameter(Mandatory = $false, ParameterSetName = 'NoOutputFile', HelpMessage = 'Specify the excluded file paths for the policy definition files.')]
-    [String[]]$ExcludePath,
+    [String[]] $ExcludePath,
 
     [Parameter(Mandatory = $false, ParameterSetName = 'ProduceOutputFile', HelpMessage = 'Specify the tags for excluded tests.')]
     [Parameter(Mandatory = $false, ParameterSetName = 'NoOutputFile', HelpMessage = 'Specify the tags for excluded tests.')]
-    [String[]]$ExcludeTags = @(),
+    [String[]] $ExcludeTags = @(),
 
-    [Parameter(ParameterSetName = 'ProduceOutputFile', Mandatory = $true)][ValidateNotNullOrEmpty()][string]$OutputFile,
-    [Parameter(ParameterSetName = 'ProduceOutputFile', Mandatory = $false)][ValidateSet('NUnitXml', 'LegacyNUnitXML')][string]$OutputFormat = 'NUnitXml'
+    [Parameter(ParameterSetName = 'ProduceOutputFile', Mandatory = $true)]
+    [ValidateNotNullOrEmpty()]
+    [string] $OutputFile,
+
+    [Parameter(ParameterSetName = 'ProduceOutputFile', Mandatory = $false)]
+    [ValidateSet('NUnitXml', 'LegacyNUnitXML')]
+    [string] $OutputFormat = 'NUnitXml'
   )
   #Test files
   $FileContentTestFilePath = Join-Path $PSScriptRoot 'fileContent.tests.ps1'
@@ -52,18 +57,23 @@ Function Test-AzPolicyDefinition {
   Param (
     [Parameter(Mandatory = $true, ValueFromPipeline = $true, ParameterSetName = 'ProduceOutputFile', HelpMessage = 'Specify the file paths for the policy definition files.')]
     [Parameter(Mandatory = $true, ValueFromPipeline = $true, ParameterSetName = 'NoOutputFile', HelpMessage = 'Specify the file paths for the policy definition files.')]
-    [String]$Path,
+    [String] $Path,
 
     [Parameter(Mandatory = $false, ParameterSetName = 'ProduceOutputFile', HelpMessage = 'Specify the excluded file paths for the policy definition files.')]
     [Parameter(Mandatory = $false, ParameterSetName = 'NoOutputFile', HelpMessage = 'Specify the excluded file paths for the policy definition files.')]
-    [String[]]$ExcludePath,
+    [String[]] $ExcludePath,
 
     [Parameter(Mandatory = $false, ParameterSetName = 'ProduceOutputFile', HelpMessage = 'Specify the tags for excluded tests.')]
     [Parameter(Mandatory = $false, ParameterSetName = 'NoOutputFile', HelpMessage = 'Specify the tags for excluded tests.')]
-    [String[]]$ExcludeTags = @(),
+    [String[]] $ExcludeTags = @(),
 
-    [Parameter(ParameterSetName = 'ProduceOutputFile', Mandatory = $true)][ValidateNotNullOrEmpty()][string]$OutputFile,
-    [Parameter(ParameterSetName = 'ProduceOutputFile', Mandatory = $false)][ValidateSet('NUnitXml', 'LegacyNUnitXML')][string]$OutputFormat = 'NUnitXml'
+    [Parameter(ParameterSetName = 'ProduceOutputFile', Mandatory = $true)]
+    [ValidateNotNullOrEmpty()]
+    [string] $OutputFile,
+
+    [Parameter(ParameterSetName = 'ProduceOutputFile', Mandatory = $false)]
+    [ValidateSet('NUnitXml', 'LegacyNUnitXML')]
+    [string] $OutputFormat = 'NUnitXml'
   )
   #Test files
   $DefinitionStructureTestFilePath = join-path $PSScriptRoot 'policyDefStructure.tests.ps1'
@@ -101,18 +111,23 @@ Function Test-AzPolicySetDefinition {
   Param (
     [Parameter(Mandatory = $true, ValueFromPipeline = $true, ParameterSetName = 'ProduceOutputFile', HelpMessage = 'Specify the file paths for the policy set definition files.')]
     [Parameter(Mandatory = $true, ValueFromPipeline = $true, ParameterSetName = 'NoOutputFile', HelpMessage = 'Specify the file paths for the policy set definition files.')]
-    [String]$Path,
+    [String] $Path,
 
     [Parameter(Mandatory = $false, ParameterSetName = 'ProduceOutputFile', HelpMessage = 'Specify the excluded file paths for the policy set definition files.')]
     [Parameter(Mandatory = $false, ParameterSetName = 'NoOutputFile', HelpMessage = 'Specify the excluded file paths for the policy set definition files.')]
-    [String[]]$ExcludePath,
+    [String[]] $ExcludePath,
 
     [Parameter(Mandatory = $false, ParameterSetName = 'ProduceOutputFile', HelpMessage = 'Specify the tags for excluded tests.')]
     [Parameter(Mandatory = $false, ParameterSetName = 'NoOutputFile', HelpMessage = 'Specify the tags for excluded tests.')]
-    [String[]]$ExcludeTags = @(),
+    [String[]] $ExcludeTags = @(),
 
-    [Parameter(ParameterSetName = 'ProduceOutputFile', Mandatory = $true)][ValidateNotNullOrEmpty()][string]$OutputFile,
-    [Parameter(ParameterSetName = 'ProduceOutputFile', Mandatory = $false)][ValidateSet('NUnitXml', 'LegacyNUnitXML')][string]$OutputFormat = 'NUnitXml'
+    [Parameter(ParameterSetName = 'ProduceOutputFile', Mandatory = $true)]
+    [ValidateNotNullOrEmpty()]
+    [string] $OutputFile,
+
+    [Parameter(ParameterSetName = 'ProduceOutputFile', Mandatory = $false)]
+    [ValidateSet('NUnitXml', 'LegacyNUnitXML')]
+    [string] $OutputFormat = 'NUnitXml'
   )
   #Test files
   $DefinitionStructureTestFilePath = join-path $PSScriptRoot 'policySetDefStructure.tests.ps1'
