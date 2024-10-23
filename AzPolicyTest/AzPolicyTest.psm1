@@ -39,7 +39,7 @@ Function Test-JSONContent {
   $config.should.ErrorAction = 'Continue'
 
   #File Content tests
-  If ($PSCmdlet.ParameterSetName -eq 'ProduceOutputFile') {
+  if ($PSCmdlet.ParameterSetName -eq 'ProduceOutputFile') {
     $config.TestResult.OutputFormat = $OutputFormat
     $config.TestResult.OutputPath = $OutputFile
   }
@@ -93,7 +93,7 @@ Function Test-AzPolicyDefinition {
   $config.should.ErrorAction = 'Continue'
 
   #Policy Definition tests
-  If ($PSCmdlet.ParameterSetName -eq 'ProduceOutputFile') {
+  if ($PSCmdlet.ParameterSetName -eq 'ProduceOutputFile') {
     $config.TestResult.OutputFormat = $OutputFormat
     $config.TestResult.OutputPath = $OutputFile
   }
@@ -147,7 +147,7 @@ Function Test-AzPolicySetDefinition {
   $config.should.ErrorAction = 'Continue'
 
   #Policy Initiative tests
-  If ($PSCmdlet.ParameterSetName -eq 'ProduceOutputFile') {
+  if ($PSCmdlet.ParameterSetName -eq 'ProduceOutputFile') {
     $config.TestResult.OutputFormat = $OutputFormat
     $config.TestResult.OutputPath = $OutputFile
   }
