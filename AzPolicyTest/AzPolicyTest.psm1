@@ -4,26 +4,34 @@ Function Test-JSONContent {
   Param (
     [Parameter(Mandatory = $true, ValueFromPipeline = $true, ParameterSetName = 'ProduceOutputFile', HelpMessage = 'Specify the file paths for the policy definition files.')]
     [Parameter(Mandatory = $true, ValueFromPipeline = $true, ParameterSetName = 'NoOutputFile', HelpMessage = 'Specify the file paths for the policy definition files.')]
-    [String]$path,
+    [String] $Path,
 
     [Parameter(Mandatory = $false, ParameterSetName = 'ProduceOutputFile', HelpMessage = 'Specify the excluded file paths for the policy definition files.')]
     [Parameter(Mandatory = $false, ParameterSetName = 'NoOutputFile', HelpMessage = 'Specify the excluded file paths for the policy definition files.')]
-    [String[]]$excludePath,
+    [String[]] $ExcludePath,
 
     [Parameter(Mandatory = $false, ParameterSetName = 'ProduceOutputFile', HelpMessage = 'Specify the tags for excluded tests.')]
     [Parameter(Mandatory = $false, ParameterSetName = 'NoOutputFile', HelpMessage = 'Specify the tags for excluded tests.')]
-    [String[]]$ExcludeTags = @(),
+    [String[]] $ExcludeTags = @(),
 
-    [Parameter(ParameterSetName = 'ProduceOutputFile', Mandatory = $true)][ValidateNotNullOrEmpty()][string]$OutputFile,
-    [Parameter(ParameterSetName = 'ProduceOutputFile', Mandatory = $false)][ValidateSet('NUnitXml', 'LegacyNUnitXML')][string]$OutputFormat = 'NUnitXml'
+    [Parameter(ParameterSetName = 'ProduceOutputFile', Mandatory = $true)]
+    [ValidateNotNullOrEmpty()]
+    [string] $OutputFile,
+
+    [Parameter(ParameterSetName = 'ProduceOutputFile', Mandatory = $false)]
+    [ValidateSet('NUnitXml', 'LegacyNUnitXML')]
+    [string] $OutputFormat = 'NUnitXml'
   )
-  #Test files
+
+  # Test files
   $FileContentTestFilePath = Join-Path $PSScriptRoot 'fileContent.tests.ps1'
   Write-Verbose "JSON Content Pester Test file Path: '$DefinitionStructureTestFilePath'" -verbose
   $testContainerData = @{
-    path        = $path
-    excludePath = $excludePath
+    path        = $Path
+    excludePath = $ExcludePath
   }
+
+  # Create Pester configuration
   $container = New-PesterContainer -Path $FileContentTestFilePath -Data $testContainerData
   $config = New-PesterConfiguration
   $config.Run.Container = $container
@@ -33,16 +41,20 @@ Function Test-JSONContent {
   $config.TestResult.TestSuiteName = 'Json Content Tests'
   $config.should.ErrorAction = 'Continue'
 
-  #File Content tests
-  If ($PSCmdlet.ParameterSetName -eq 'ProduceOutputFile') {
+  # Configure Pester test result output based on parameter set name
+  if ($PSCmdlet.ParameterSetName -eq 'ProduceOutputFile') {
     $config.TestResult.OutputFormat = $OutputFormat
     $config.TestResult.OutputPath = $OutputFile
+  } else {
+    $config.TestResult.Enabled = $false
   }
 
+  # Configure Pester to exclude tags if present
   if ($ExcludeTags.count -gt 0) {
     $config.Filter.ExcludeTag = $ExcludeTags
   }
 
+  # Invoke Pester
   Invoke-Pester -Configuration $config
 }
 
@@ -52,27 +64,34 @@ Function Test-AzPolicyDefinition {
   Param (
     [Parameter(Mandatory = $true, ValueFromPipeline = $true, ParameterSetName = 'ProduceOutputFile', HelpMessage = 'Specify the file paths for the policy definition files.')]
     [Parameter(Mandatory = $true, ValueFromPipeline = $true, ParameterSetName = 'NoOutputFile', HelpMessage = 'Specify the file paths for the policy definition files.')]
-    [String]$path,
+    [String] $Path,
 
     [Parameter(Mandatory = $false, ParameterSetName = 'ProduceOutputFile', HelpMessage = 'Specify the excluded file paths for the policy definition files.')]
     [Parameter(Mandatory = $false, ParameterSetName = 'NoOutputFile', HelpMessage = 'Specify the excluded file paths for the policy definition files.')]
-    [String[]]$excludePath,
+    [String[]] $ExcludePath,
 
     [Parameter(Mandatory = $false, ParameterSetName = 'ProduceOutputFile', HelpMessage = 'Specify the tags for excluded tests.')]
     [Parameter(Mandatory = $false, ParameterSetName = 'NoOutputFile', HelpMessage = 'Specify the tags for excluded tests.')]
-    [String[]]$ExcludeTags = @(),
+    [String[]] $ExcludeTags = @(),
 
-    [Parameter(ParameterSetName = 'ProduceOutputFile', Mandatory = $true)][ValidateNotNullOrEmpty()][string]$OutputFile,
-    [Parameter(ParameterSetName = 'ProduceOutputFile', Mandatory = $false)][ValidateSet('NUnitXml', 'LegacyNUnitXML')][string]$OutputFormat = 'NUnitXml'
+    [Parameter(ParameterSetName = 'ProduceOutputFile', Mandatory = $true)]
+    [ValidateNotNullOrEmpty()]
+    [string] $OutputFile,
+
+    [Parameter(ParameterSetName = 'ProduceOutputFile', Mandatory = $false)]
+    [ValidateSet('NUnitXml', 'LegacyNUnitXML')]
+    [string] $OutputFormat = 'NUnitXml'
   )
-  #Test files
+
+  # Test files
   $DefinitionStructureTestFilePath = join-path $PSScriptRoot 'policyDefStructure.tests.ps1'
   Write-Verbose "Policy Definition Pester Test file Path: '$DefinitionStructureTestFilePath'" -verbose
-
   $testContainerData = @{
-    path        = $path
-    excludePath = $excludePath
+    path        = $Path
+    excludePath = $ExcludePath
   }
+
+  # Create Pester configuration
   $container = New-PesterContainer -Path $DefinitionStructureTestFilePath -Data $testContainerData
   $config = New-PesterConfiguration
   $config.Run.Container = $container
@@ -82,16 +101,20 @@ Function Test-AzPolicyDefinition {
   $config.TestResult.TestSuiteName = 'Policy Definition Tests'
   $config.should.ErrorAction = 'Continue'
 
-  #Policy Definition tests
-  If ($PSCmdlet.ParameterSetName -eq 'ProduceOutputFile') {
+  # Configure Pester test result output based on parameter set name
+  if ($PSCmdlet.ParameterSetName -eq 'ProduceOutputFile') {
     $config.TestResult.OutputFormat = $OutputFormat
     $config.TestResult.OutputPath = $OutputFile
+  } else {
+    $config.TestResult.Enabled = $false
   }
 
+  # Configure Pester to exclude tags if present
   if ($ExcludeTags.count -gt 0) {
     $config.Filter.ExcludeTag = $ExcludeTags
   }
 
+  # Invoke Pester
   Invoke-Pester -Configuration $config
 }
 
@@ -101,27 +124,34 @@ Function Test-AzPolicySetDefinition {
   Param (
     [Parameter(Mandatory = $true, ValueFromPipeline = $true, ParameterSetName = 'ProduceOutputFile', HelpMessage = 'Specify the file paths for the policy set definition files.')]
     [Parameter(Mandatory = $true, ValueFromPipeline = $true, ParameterSetName = 'NoOutputFile', HelpMessage = 'Specify the file paths for the policy set definition files.')]
-    [String]$path,
+    [String] $Path,
 
     [Parameter(Mandatory = $false, ParameterSetName = 'ProduceOutputFile', HelpMessage = 'Specify the excluded file paths for the policy set definition files.')]
     [Parameter(Mandatory = $false, ParameterSetName = 'NoOutputFile', HelpMessage = 'Specify the excluded file paths for the policy set definition files.')]
-    [String[]]$excludePath,
+    [String[]] $ExcludePath,
 
     [Parameter(Mandatory = $false, ParameterSetName = 'ProduceOutputFile', HelpMessage = 'Specify the tags for excluded tests.')]
     [Parameter(Mandatory = $false, ParameterSetName = 'NoOutputFile', HelpMessage = 'Specify the tags for excluded tests.')]
-    [String[]]$ExcludeTags = @(),
+    [String[]] $ExcludeTags = @(),
 
-    [Parameter(ParameterSetName = 'ProduceOutputFile', Mandatory = $true)][ValidateNotNullOrEmpty()][string]$OutputFile,
-    [Parameter(ParameterSetName = 'ProduceOutputFile', Mandatory = $false)][ValidateSet('NUnitXml', 'LegacyNUnitXML')][string]$OutputFormat = 'NUnitXml'
+    [Parameter(ParameterSetName = 'ProduceOutputFile', Mandatory = $true)]
+    [ValidateNotNullOrEmpty()]
+    [string] $OutputFile,
+
+    [Parameter(ParameterSetName = 'ProduceOutputFile', Mandatory = $false)]
+    [ValidateSet('NUnitXml', 'LegacyNUnitXML')]
+    [string] $OutputFormat = 'NUnitXml'
   )
-  #Test files
+
+  # Test files
   $DefinitionStructureTestFilePath = join-path $PSScriptRoot 'policySetDefStructure.tests.ps1'
   Write-Verbose "Policy Initiative Pester Test file Path: '$DefinitionStructureTestFilePath'" -verbose
-
   $testContainerData = @{
-    path        = $path
-    excludePath = $excludePath
+    path        = $Path
+    excludePath = $ExcludePath
   }
+
+  # Create Pester configuration
   $container = New-PesterContainer -Path $DefinitionStructureTestFilePath -Data $testContainerData
   $config = New-PesterConfiguration
   $config.Run.Container = $container
@@ -131,16 +161,20 @@ Function Test-AzPolicySetDefinition {
   $config.TestResult.TestSuiteName = 'JPolicy Initiative Tests'
   $config.should.ErrorAction = 'Continue'
 
-  #Policy Initiative tests
-  If ($PSCmdlet.ParameterSetName -eq 'ProduceOutputFile') {
+  # Configure Pester test result output based on parameter set name
+  if ($PSCmdlet.ParameterSetName -eq 'ProduceOutputFile') {
     $config.TestResult.OutputFormat = $OutputFormat
     $config.TestResult.OutputPath = $OutputFile
+  } else {
+    $config.TestResult.Enabled = $false
   }
 
+  # Configure Pester to exclude tags if present
   if ($ExcludeTags.count -gt 0) {
     $config.Filter.ExcludeTag = $ExcludeTags
   }
 
+  # Invoke Pester
   Invoke-Pester -Configuration $config
 }
 
@@ -149,18 +183,18 @@ Function GetRelativeFilePath {
   Param (
     [Parameter(Mandatory = $true)]
     [ValidateScript({ Test-Path $_ })]
-    [String]$path
+    [String]$Path
   )
   #Try to get git root directory
-  if ((Get-Item $path).PSIsContainer) {
-    $gitRoot = GetGitRoot -path $path
+  if ((Get-Item $Path).PSIsContainer) {
+    $gitRoot = GetGitRoot -path $Path
   } else {
-    $gitRoot = GetGitRoot -path (Get-Item $path).Directory
+    $gitRoot = GetGitRoot -path (Get-Item $Path).Directory
   }
   if ($gitRoot) {
-    $relativePath = Resolve-Path -Path $path -RelativeBasePath $gitRoot -Relative
+    $relativePath = Resolve-Path -Path $Path -RelativeBasePath $gitRoot -Relative
   } else {
-    $relativePath = $path
+    $relativePath = $Path
   }
   $relativePath
 }
@@ -170,28 +204,28 @@ Function GetGitRoot {
   Param (
     [Parameter(Mandatory = $true, ValueFromPipeline = $true, HelpMessage = 'Specify the folder path.')]
     [ValidateScript({ Test-Path $_ -PathType Container })]
-    [String]$path
+    [String]$Path
   )
   #store the current Directory in a variable
   $currentDir = $pwd
 
   #Change the working directory to the specified path
-  Set-Location $path
+  Set-Location $Path
 
   #Check if the current directory is inside a git repository
   try {
-    $isGitRepo = Invoke-Expression 'git rev-parse --is-inside-work-tree 2>&1' -ErrorAction SilentlyContinue
+    $isGitRepo = Invoke-Expression -Command 'git rev-parse --is-inside-work-tree 2>&1' -ErrorAction SilentlyContinue
   } catch {
     $isGitRepo = 'false'
   }
   if ($isGitRepo -eq 'true') {
     #Get the root directory of the git repository
-    $gitRootDir = Invoke-expression 'git rev-parse --show-toplevel 2>&1' -ErrorAction SilentlyContinue
+    $gitRootDir = Invoke-expression -Command 'git rev-parse --show-toplevel 2>&1' -ErrorAction SilentlyContinue
     if (Test-Path $gitRootDir) {
       $gitRootDir = Convert-Path $gitRootDir
     }
   } else {
-    Write-Verbose "The specified path '$path' is not inside a git repository or git command tool is not installed."
+    Write-Verbose "The specified path '$Path' is not inside a git repository or git command tool is not installed."
   }
 
   #Change the working directory back to the original directory

@@ -15,7 +15,6 @@
       PSCommand_Test-JSONContent</tags>
     <licenseUrl>https://github.com/tyconsulting/AzPolicyTest/blob/master/LICENSE</licenseUrl>
     <projectUrl>https://github.com/tyconsulting/AzPolicyTest</projectUrl>
-
     <dependencies>
       <dependency id='pester' version='5.5.0' />
     </dependencies>
