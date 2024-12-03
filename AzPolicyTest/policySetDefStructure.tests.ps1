@@ -32,6 +32,21 @@ function IsParameterInUse {
   }
   $bIsInUse
 }
+
+function IsParameterDefined {
+  param(
+    [object] $policySetObject,
+    [string] $parameter
+  )
+  $bIsDefined = $false
+  Foreach ($p in $policySetObject.properties.parameters.PSObject.Properties) {
+    if ($p.Name -ieq $parameter) {
+      $bIsDefined = $true
+      break
+    }
+  }
+  $bIsDefined
+}
 #variables
 $TestName = 'Policy Set Definition Syntax Test'
 
@@ -399,7 +414,33 @@ Foreach ($file in $files) {
           )
           $policyDefinition.parameters.PSObject.Properties.count | Should -BeGreaterThan 0
         }
+        foreach ($p in $policyDefinition.parameters.PSObject.Properties) {
+          $parameterName = $p.Name
+          $parameterConfig = $policyDefinition.parameters.$parameterName
+          $parameterValue = $policyDefinition.parameters.$parameterName.value
+          #Check if the parameter value is from the parameter of the initiative
+          $valueExpectedFromInitiativeParameters = $false
+          if ($parameterValue -imatch "parameters\(\'(.*)\'\)") {
+            $passedInParameter = $matches[1]
+            $valueExpectedFromInitiativeParameters = $true
+          }
+          $parameterIsDefinedTestCase = @{
+            passedInParameter   = $passedInParameter
+            parameterConfig = $parameterConfig
+            parameterIsDefined = IsParameterDefined -policySetObject $json -parameter $passedInParameter
+            valueExpectedFromInitiativeParameters = $valueExpectedFromInitiativeParameters
+          }
 
+          It "Passed-in Parameter [<passedInParameter>] in $policyDefTestTitle must be defined in the Initiative Parameters" -TestCases ($parameterIsDefinedTestCase | where-object {$_.valueExpectedFromInitiativeParameters -eq $true}) -Tag 'PolicyDefinitionParameterIsDefined' {
+            param(
+              [string] $parameterName,
+              [object] $parameterConfig
+            )
+            $parameterIsDefined | Should -Be $true
+          }
+
+
+        }
         It "$policyDefTestTitle must contain 'groupNames' element" -TestCases $policyDefinitionTestCase -Tag 'PolicyDefinitionGroupNamesExists' {
           param(
             [object] $policyDefinition
