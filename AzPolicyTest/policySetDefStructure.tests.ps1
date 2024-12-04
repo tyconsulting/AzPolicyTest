@@ -85,7 +85,8 @@ Foreach ($file in $files) {
   }
   Describe "[$fileRelativePath]:: $TestName" -Tag 'policyDefSyntax' {
     BeforeAll {
-      $ValidParameterTypes = [string[]](
+      # Variables - Use Script scope to make PSScriptAnalyzer happy <https://github.com/PowerShell/PSScriptAnalyzer/issues/1641>
+      $Script:ValidParameterTypes = [string[]](
         'array',
         'boolean',
         'datetime',

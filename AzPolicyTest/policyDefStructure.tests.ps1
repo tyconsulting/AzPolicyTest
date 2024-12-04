@@ -79,8 +79,8 @@ foreach ($file in $files) {
   Describe "[$fileRelativePath]: Policy Definition Syntax Test" -Tag 'policyDefSyntax' {
 
     BeforeAll {
-      # Variables
-      $ValidEffects = [string[]](
+      # Variables - Use Script scope to make PSScriptAnalyzer happy <https://github.com/PowerShell/PSScriptAnalyzer/issues/1641>
+      $Script:ValidEffects = [string[]](
         'AddToNetworkGroup',
         'Append',
         'Audit',
@@ -93,7 +93,7 @@ foreach ($file in $files) {
         'Modify',
         'Mutate'
       )
-      $ValidModes = [string[]](
+      $Script:ValidModes = [string[]](
         'All',
         'Indexed',
         'Microsoft.DataFactory.Data',
@@ -103,12 +103,12 @@ foreach ($file in $files) {
         'Microsoft.ManagedHSM.Data',
         'Microsoft.Network.Data'
       )
-      $ModifyConflictEffectsValidValues = [string[]](
+      $Script:ModifyConflictEffectsValidValues = [string[]](
         'audit',
         'deny',
         'disabled'
       )
-      $ValidParameterTypes = [string[]](
+      $Script:ValidParameterTypes = [string[]](
         'array',
         'boolean',
         'datetime',
