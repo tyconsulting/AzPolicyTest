@@ -228,7 +228,6 @@ Function GetGitRoot {
   }
 
   Process {
-
     # Change the working directory to the specified path
     Set-Location $Path
 
