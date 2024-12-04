@@ -469,6 +469,12 @@ foreach ($file in $files) {
         )
         $json.properties.policyRule.then.details.PSobject.Properties.name -cmatch 'existenceCondition' | Should -Not -Be $Null
       }
+      It "Policy rule existenceCondition must not be empty" -TestCases ($testCase | where-Object { $_.policyEffect.effects -contains 'DeployIfNotExists' -and $_.json.properties.policyRule.then.details.PSobject.Properties.name -cmatch 'existenceCondition' }) -Tag 'DINEExistenceConditionNotEmpty' {
+        param(
+          [object] $json
+        )
+        $json.properties.policyRule.then.details.existenceCondition | ConvertTo-Json | Should -Not -Be '{}'
+      }
       It "Policy rule must contain a 'roleDefinitionIds' element" -TestCases ($testCase | where-Object { $_.policyEffect.effects -contains 'DeployIfNotExists' }) -Tag 'DINERoleDefinition' {
         param(
           [object] $json
@@ -579,6 +585,12 @@ foreach ($file in $files) {
           [object] $json
         )
         $json.properties.policyRule.then.details.PSobject.Properties.name -cmatch 'existenceCondition' | Should -Not -Be $Null
+      }
+      It "Policy rule existenceCondition must not be empty" -TestCases ($testCase | where-Object { $_.policyEffect.effects -contains 'AuditIfNotExists' -and $_.json.properties.policyRule.then.details.PSobject.Properties.name -cmatch 'existenceCondition' }) -Tag 'AINEExistenceConditionNotEmpty' {
+        param(
+          [object] $json
+        )
+        $json.properties.policyRule.then.details.existenceCondition | ConvertTo-Json | Should -Not -Be '{}'
       }
     }
   }
