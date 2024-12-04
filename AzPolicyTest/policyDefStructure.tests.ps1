@@ -40,7 +40,7 @@ function GetPolicyEffect {
 }
 
 #variables
-$global:validEffects = [System.Collections.ArrayList]@(
+$Script:ValidEffects = [string[]](
   'Modify',
   'Deny',
   'Audit',
@@ -54,7 +54,7 @@ $global:validEffects = [System.Collections.ArrayList]@(
   'Mutate'
 )
 
-$global:validModes = [System.Collections.ArrayList]@(
+$Script:ValidModes = [string[]](
   'All',
   'Indexed',
   'Microsoft.KeyVault.Data',
@@ -65,13 +65,13 @@ $global:validModes = [System.Collections.ArrayList]@(
   'Microsoft.MachineLearningServices.v2.Data'
 )
 
-$global:modifyConflictEffectsValidValues = [System.Collections.ArrayList]@(
+$Script:ModifyConflictEffectsValidValues = [string[]](
   'audit',
   'deny',
   'disabled'
 )
 
-$global:validParameterTypes = @(
+$Script:ValidParameterTypes = @(
   'string',
   'array',
   'object',
@@ -236,7 +236,7 @@ foreach ($file in $files) {
         param(
           [object] $json
         )
-        $global:validModes.contains($json.properties.mode) | Should -Be $true
+        $Script:ValidModes.contains($json.properties.mode) | Should -Be $true
       }
 
       It "Properties must contain 'parameters' element" -TestCases $testCase -Tag 'ParametersExists' {
@@ -342,7 +342,7 @@ foreach ($file in $files) {
             [string] $parameterName,
             [object] $parameterConfig
           )
-          $global:validParameterTypes -contains $parameterConfig.type.tolower() | Should -Be $true
+          $Script:ValidParameterTypes -contains $parameterConfig.type.tolower() | Should -Be $true
         }
 
         It "Parameter [<parameterName>] metadata must contain 'displayName' element" -TestCases $parameterTestCase -Tag 'ParameterDisplayNameExists' {
@@ -407,7 +407,7 @@ foreach ($file in $files) {
         )
         $validEffectCount = 0
         foreach ($item in $policyEffect.effects) {
-          if ($global:validEffects.Contains($item)) {
+          if ($Script:ValidEffects.Contains($item)) {
             $validEffectCount++
           }
         }
@@ -469,11 +469,11 @@ foreach ($file in $files) {
         )
         $json.properties.policyRule.then.details.PSobject.Properties.name -cmatch 'existenceCondition' | Should -Not -Be $Null
       }
-      It "Policy rule existenceCondition must not be empty" -TestCases ($testCase | where-Object { $_.policyEffect.effects -contains 'DeployIfNotExists' -and $_.json.properties.policyRule.then.details.PSobject.Properties.name -cmatch 'existenceCondition' }) -Tag 'DINEExistenceConditionNotEmpty' {
+      It 'Policy rule existenceCondition must not be empty' -TestCases ($testCase | where-Object { $_.policyEffect.effects -contains 'DeployIfNotExists' -and $_.json.properties.policyRule.then.details.PSobject.Properties.name -cmatch 'existenceCondition' }) -Tag 'DINEExistenceConditionNotEmpty' {
         param(
           [object] $json
         )
-        $json.properties.policyRule.then.details.existenceCondition | ConvertTo-Json | Should -Not -Be '{}'
+        $json.properties.policyRule.then.details.existenceCondition | ConvertTo-Json -Depth 5 | Should -Not -Be '{}'
       }
       It "Policy rule must contain a 'roleDefinitionIds' element" -TestCases ($testCase | where-Object { $_.policyEffect.effects -contains 'DeployIfNotExists' }) -Tag 'DINERoleDefinition' {
         param(
@@ -557,7 +557,7 @@ foreach ($file in $files) {
         param(
           [object] $json
         )
-        $global:modifyConflictEffectsValidValues -contains $json.properties.policyRule.then.details.conflictEffect | Should -Be $true
+        $Script:ModifyConflictEffectsValidValues -contains $json.properties.policyRule.then.details.conflictEffect | Should -Be $true
       }
       It "Policy rule must contain an 'operations' element" -TestCases ($testCase | where-Object { $_.policyEffect.effects -contains 'Modify' }) -Tag 'ModifyOperations' {
         param(
@@ -586,11 +586,11 @@ foreach ($file in $files) {
         )
         $json.properties.policyRule.then.details.PSobject.Properties.name -cmatch 'existenceCondition' | Should -Not -Be $Null
       }
-      It "Policy rule existenceCondition must not be empty" -TestCases ($testCase | where-Object { $_.policyEffect.effects -contains 'AuditIfNotExists' -and $_.json.properties.policyRule.then.details.PSobject.Properties.name -cmatch 'existenceCondition' }) -Tag 'AINEExistenceConditionNotEmpty' {
+      It 'Policy rule existenceCondition must not be empty' -TestCases ($testCase | where-Object { $_.policyEffect.effects -contains 'AuditIfNotExists' -and $_.json.properties.policyRule.then.details.PSobject.Properties.name -cmatch 'existenceCondition' }) -Tag 'AINEExistenceConditionNotEmpty' {
         param(
           [object] $json
         )
-        $json.properties.policyRule.then.details.existenceCondition | ConvertTo-Json | Should -Not -Be '{}'
+        $json.properties.policyRule.then.details.existenceCondition | ConvertTo-Json -Depth 5 | Should -Not -Be '{}'
       }
     }
   }
