@@ -411,9 +411,7 @@ foreach ($file in $files) {
         param(
           [hashtable] $policyEffect
         )
-        $policyEffect.effects.Where{
-          $_ -notin $ValidEffects
-        }.Count | Should -BeLessOrEqual 0
+        $policyEffect.effects.Where({$_ -in $ValidEffects},'First').'Count' | Should -BeExactly 1
       }
 
       It -Name "Policy rule with 'Deny' effect must also support 'Audit' Effect" -TestCases (
