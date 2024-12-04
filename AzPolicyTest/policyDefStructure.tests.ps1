@@ -108,7 +108,7 @@ foreach ($file in $files) {
   $fileFullName = (get-item $file).FullName
   $fileRelativePath = GetRelativeFilePath -path $fileFullName
   #check if the file is inside a git repository
-  $json = ConvertFrom-Json -InputObject (Get-Content -Path $file -Raw) -ErrorAction SilentlyContinue
+  $json = ConvertFrom-Json -InputObject (Get-Content -Path $file -Raw) -Depth 10 -ErrorAction SilentlyContinue
   $testCase = @{
     fileName         = $fileName
     json             = $json
@@ -473,7 +473,7 @@ foreach ($file in $files) {
         param(
           [object] $json
         )
-        $json.properties.policyRule.then.details.existenceCondition | ConvertTo-Json | Should -Not -Be '{}'
+        $json.properties.policyRule.then.details.existenceCondition | ConvertTo-Json -Depth 10 | Should -Not -Be '{}'
       }
       It "Policy rule must contain a 'roleDefinitionIds' element" -TestCases ($testCase | where-Object { $_.policyEffect.effects -contains 'DeployIfNotExists' }) -Tag 'DINERoleDefinition' {
         param(
@@ -590,7 +590,7 @@ foreach ($file in $files) {
         param(
           [object] $json
         )
-        $json.properties.policyRule.then.details.existenceCondition | ConvertTo-Json | Should -Not -Be '{}'
+        $json.properties.policyRule.then.details.existenceCondition | ConvertTo-Json -Depth 10 | Should -Not -Be '{}'
       }
     }
   }
