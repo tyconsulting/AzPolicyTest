@@ -70,7 +70,7 @@ foreach ($file in $files) {
   $fileFullName = (get-item $file).FullName
   $fileRelativePath = GetRelativeFilePath -path $fileFullName
   #check if the file is inside a git repository
-  $json = ConvertFrom-Json -InputObject (Get-Content -Path $file -Raw) -Depth 10 -ErrorAction SilentlyContinue
+  $json = ConvertFrom-Json -InputObject (Get-Content -Path $file -Raw) -ErrorAction SilentlyContinue
   $testCase = @{
     fileName         = $fileName
     json             = $json

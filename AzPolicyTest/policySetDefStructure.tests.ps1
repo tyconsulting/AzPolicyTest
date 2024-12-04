@@ -81,7 +81,7 @@ Foreach ($file in $files) {
   $fileName = (get-item $file).name
   $fileFullName = (get-item $file).FullName
   $fileRelativePath = GetRelativeFilePath -path $fileFullName
-  $json = ConvertFrom-Json -InputObject (Get-Content -Path $file -Raw) -Depth 10 -ErrorAction SilentlyContinue
+  $json = ConvertFrom-Json -InputObject (Get-Content -Path $file -Raw) -ErrorAction SilentlyContinue
   $testCase = @{
     fileName         = $fileName
     json             = $json
