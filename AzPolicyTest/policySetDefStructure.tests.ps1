@@ -1,7 +1,11 @@
 [CmdletBinding()]
 Param (
-  [Parameter(Mandatory = $true)][validateScript({ Test-Path $_ })][string]$Path,
-  [Parameter(Mandatory = $false)][string[]]$excludePath
+  [Parameter(Mandatory = $true)]
+  [ValidateScript({Test-Path -Path $_})]
+  [string]$Path,
+
+  [Parameter(Mandatory = $false)]
+  [string[]] $ExcludePath
 )
 Write-Verbose "Path: '$Path'"
 
@@ -63,9 +67,9 @@ if ((Get-Item $path).PSIsContainer) {
   }
   $files = Get-ChildItem @gciParams
   # -Exclude parameter in Get-ChildItem only works on file name, not parent folder name hence it's not used in get-childitem
-  if ($excludePath) {
-    $excludePath = $excludePath -join '|'
-    $files = $files | Where-Object -FilterScript {$_.FullName -notmatch $excludePath}
+  if ($ExcludePath) {
+    $ExcludePath = $ExcludePath -join '|'
+    $files = $files | Where-Object -FilterScript {$_.FullName -notmatch $ExcludePath}
   }
 } else {
   Write-Verbose "Specified path '$path' is a file"
