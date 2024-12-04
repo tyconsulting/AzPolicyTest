@@ -238,7 +238,7 @@ Function GetGitRoot {
       $isGitRepo = 'false'
     }
     if ($isGitRepo -eq 'true') {
-      #Get the root directory of the git repository
+      # Get the root directory of the git repository
       $gitRootDir = Invoke-expression -Command 'git rev-parse --show-toplevel 2>&1' -ErrorAction SilentlyContinue
       if (Test-Path $gitRootDir) {
         $gitRootDir = Convert-Path $gitRootDir
