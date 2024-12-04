@@ -420,7 +420,7 @@ Foreach ($file in $files) {
           $parameterValue = $policyDefinition.parameters.$parameterName.value
           #Check if the parameter value is from the parameter of the initiative
           $valueExpectedFromInitiativeParameters = $false
-          if ($parameterValue -imatch "parameters\(\'(.*)\'\)") {
+          if ($parameterValue -imatch "parameters\(\'(\S+)\'\)") {
             $passedInParameter = $matches[1]
             $valueExpectedFromInitiativeParameters = $true
           }
