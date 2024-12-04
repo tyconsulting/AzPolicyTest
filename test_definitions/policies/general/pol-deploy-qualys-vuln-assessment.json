@@ -1,0 +1,102 @@
+{
+  "name": "f1055cad-206f-4d96-9b97-a64abb0f2aee",
+  "properties": {
+    "displayName": "Deploy Qualys Vulnerability Assessment Solution on Virtual Machines",
+    "description": "This policy deploys the Qualys vulnerability assessment extension to Windows and Linux virtual machines.",
+    "mode": "All",
+    "metadata": {
+      "category": "Dataprotection",
+      "version": "1.0.0",
+      "RemediationDescription": "Remediate through Azure Policy portal",
+      "Severity": "Low"
+    },
+    "version": "1.0.0",
+    "parameters": {
+      "effect": {
+        "allowedValues": [
+          "DeployIfNotExists",
+          "AuditIfNotExists",
+          "Disabled"
+        ],
+        "defaultValue": "DeployIfNotExists",
+        "metadata": {
+          "description": "Enable or disable the execution of the policy.",
+          "displayName": "Effect"
+        },
+        "type": "string"
+      }
+    },
+    "policyRule": {
+      "if": {
+        "field": "type",
+        "in": [
+          "Microsoft.Compute/virtualMachines",
+          "Microsoft.ClassicCompute/virtualMachines"
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]",
+        "details": {
+          "evaluationDelay": "PT10M",
+          "type": "Microsoft.Compute/virtualMachines/extensions",
+          "existenceCondition": {
+            "allOf": [
+              {
+                "field": "Microsoft.Compute/virtualMachines/extensions/type",
+                "in": [
+                  "WindowsAgent.AzureSecurityCenter",
+                  "LinuxAgent.AzureSecurityCenter"
+                ]
+              },
+              {
+                "field": "Microsoft.Compute/virtualMachines/extensions/publisher",
+                "equals": "Qualys"
+              },
+              {
+                "field": "Microsoft.Compute/virtualMachines/extensions/provisioningState",
+                "equals": "Succeeded"
+              }
+            ]
+          },
+          "roleDefinitionIds": [
+            "/providers/microsoft.authorization/roleDefinitions/fb1c8493-542b-48eb-b624-b4c8fea62acd"
+          ],
+          "deployment": {
+            "properties": {
+              "parameters": {
+                "vmName": {
+                  "value": "[field('name')]"
+                },
+                "apiVersionByEnv": {
+                  "value": "2015-06-01-preview"
+                }
+              },
+              "mode": "Incremental",
+              "template": {
+                "outputs": {},
+                "parameters": {
+                  "vmName": {
+                    "type": "string"
+                  },
+                  "apiVersionByEnv": {
+                    "type": "string"
+                  }
+                },
+                "contentVersion": "1.0.0.0",
+                "resources": [
+                  {
+                    "type": "Microsoft.Compute/virtualMachines/providers/serverVulnerabilityAssessments",
+                    "apiVersion": "[parameters('apiVersionByEnv')]",
+                    "name": "[concat(parameters('vmName'), '/Microsoft.Security/default')]"
+                  }
+                ],
+                "variables": {},
+                "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
