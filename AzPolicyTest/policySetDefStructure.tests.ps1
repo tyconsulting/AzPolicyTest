@@ -303,7 +303,10 @@ Foreach ($file in $files) {
         }
 
         It -Name 'Parameter [<parameterName>] default value must be a member of allowed values' -TestCases (
-          $parameterTestCase | where-Object { $_.parameterConfig.PSObject.properties.name -icontains 'allowedValues' -and $_.parameterConfig.PSObject.properties.name -icontains 'defaultValue' }
+          $parameterTestCase | where-Object {
+            $_.parameterConfig.PSObject.properties.name -icontains 'allowedValues' -and
+            $_.parameterConfig.PSObject.properties.name -icontains 'defaultValue'
+          }
         ) -Tag 'ParameterDefaultValueValid' -Test {
           param(
             [string] $parameterName,
@@ -399,6 +402,7 @@ Foreach ($file in $files) {
           )
           $policyDefinition.policyDefinitionReferenceId.length | Should -BeGreaterThan 0
         }
+
         It -Name "'policyDefinitionReferenceId' in $policyDefTestTitle must be only used One (1) time" -TestCases $policyDefinitionTestCase -Tag 'noDuplicatePolicyDefinitionReferenceId' -Test {
           param(
             [object] $policyDefinition,
