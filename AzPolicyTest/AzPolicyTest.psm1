@@ -23,39 +23,44 @@ Function Test-JSONContent {
     [string] $OutputFormat = 'NUnitXml'
   )
 
-  # Test files
-  $FileContentTestFilePath = Join-Path $PSScriptRoot 'fileContent.tests.ps1'
-  Write-Verbose "JSON Content Pester Test file Path: '$DefinitionStructureTestFilePath'" -verbose
-  $testContainerData = @{
-    path        = $Path
-    excludePath = $ExcludePath
+  Begin {
+    # Test files
+    $FileContentTestFilePath = Join-Path $PSScriptRoot 'fileContent.tests.ps1'
+    Write-Verbose "JSON Content Pester Test file Path: '$DefinitionStructureTestFilePath'" -verbose
   }
 
-  # Create Pester configuration
-  $container = New-PesterContainer -Path $FileContentTestFilePath -Data $testContainerData
-  $config = New-PesterConfiguration
-  $config.Run.Container = $container
-  $config.Run.PassThru = $true
-  $config.Output.verbosity = 'Detailed'
-  $config.TestResult.Enabled = $true
-  $config.TestResult.TestSuiteName = 'Json Content Tests'
-  $config.should.ErrorAction = 'Continue'
+  Process {
+    $testContainerData = @{
+      path        = $Path
+      excludePath = $ExcludePath
+    }
 
-  # Configure Pester test result output based on parameter set name
-  if ($PSCmdlet.ParameterSetName -eq 'ProduceOutputFile') {
-    $config.TestResult.OutputFormat = $OutputFormat
-    $config.TestResult.OutputPath = $OutputFile
-  } else {
-    $config.TestResult.Enabled = $false
+    # Create Pester configuration
+    $container = New-PesterContainer -Path $FileContentTestFilePath -Data $testContainerData
+    $config = New-PesterConfiguration
+    $config.Run.Container = $container
+    $config.Run.PassThru = $true
+    $config.Output.verbosity = 'Detailed'
+    $config.TestResult.Enabled = $true
+    $config.TestResult.TestSuiteName = 'Json Content Tests'
+    $config.should.ErrorAction = 'Continue'
+
+    # Configure Pester test result output based on parameter set name
+    if ($PSCmdlet.ParameterSetName -eq 'ProduceOutputFile') {
+      $config.TestResult.OutputFormat = $OutputFormat
+      $config.TestResult.OutputPath = $OutputFile
+    } else {
+      $config.TestResult.Enabled = $false
+    }
+
+    # Configure Pester to exclude tags if present
+    if ($ExcludeTags.count -gt 0) {
+      $config.Filter.ExcludeTag = $ExcludeTags
+    }
+
+    # Invoke Pester
+    Invoke-Pester -Configuration $config
   }
-
-  # Configure Pester to exclude tags if present
-  if ($ExcludeTags.count -gt 0) {
-    $config.Filter.ExcludeTag = $ExcludeTags
-  }
-
-  # Invoke Pester
-  Invoke-Pester -Configuration $config
 }
 
 # .EXTERNALHELP AzPolicyTest-help.xml
@@ -83,39 +88,44 @@ Function Test-AzPolicyDefinition {
     [string] $OutputFormat = 'NUnitXml'
   )
 
-  # Test files
-  $DefinitionStructureTestFilePath = join-path $PSScriptRoot 'policyDefStructure.tests.ps1'
-  Write-Verbose "Policy Definition Pester Test file Path: '$DefinitionStructureTestFilePath'" -verbose
-  $testContainerData = @{
-    path        = $Path
-    excludePath = $ExcludePath
+  Begin {
+    # Test files
+    $DefinitionStructureTestFilePath = join-path $PSScriptRoot 'policyDefStructure.tests.ps1'
+    Write-Verbose "Policy Definition Pester Test file Path: '$DefinitionStructureTestFilePath'" -verbose
   }
 
-  # Create Pester configuration
-  $container = New-PesterContainer -Path $DefinitionStructureTestFilePath -Data $testContainerData
-  $config = New-PesterConfiguration
-  $config.Run.Container = $container
-  $config.Run.PassThru = $true
-  $config.Output.verbosity = 'Detailed'
-  $config.TestResult.Enabled = $true
-  $config.TestResult.TestSuiteName = 'Policy Definition Tests'
-  $config.should.ErrorAction = 'Continue'
+  Process {
+    $testContainerData = @{
+      path        = $Path
+      excludePath = $ExcludePath
+    }
 
-  # Configure Pester test result output based on parameter set name
-  if ($PSCmdlet.ParameterSetName -eq 'ProduceOutputFile') {
-    $config.TestResult.OutputFormat = $OutputFormat
-    $config.TestResult.OutputPath = $OutputFile
-  } else {
-    $config.TestResult.Enabled = $false
+    # Create Pester configuration
+    $container = New-PesterContainer -Path $DefinitionStructureTestFilePath -Data $testContainerData
+    $config = New-PesterConfiguration
+    $config.Run.Container = $container
+    $config.Run.PassThru = $true
+    $config.Output.verbosity = 'Detailed'
+    $config.TestResult.Enabled = $true
+    $config.TestResult.TestSuiteName = 'Policy Definition Tests'
+    $config.should.ErrorAction = 'Continue'
+
+    # Configure Pester test result output based on parameter set name
+    if ($PSCmdlet.ParameterSetName -eq 'ProduceOutputFile') {
+      $config.TestResult.OutputFormat = $OutputFormat
+      $config.TestResult.OutputPath = $OutputFile
+    } else {
+      $config.TestResult.Enabled = $false
+    }
+
+    # Configure Pester to exclude tags if present
+    if ($ExcludeTags.count -gt 0) {
+      $config.Filter.ExcludeTag = $ExcludeTags
+    }
+
+    # Invoke Pester
+    Invoke-Pester -Configuration $config
   }
-
-  # Configure Pester to exclude tags if present
-  if ($ExcludeTags.count -gt 0) {
-    $config.Filter.ExcludeTag = $ExcludeTags
-  }
-
-  # Invoke Pester
-  Invoke-Pester -Configuration $config
 }
 
 # .EXTERNALHELP AzPolicyTest-help.xml
@@ -143,39 +153,44 @@ Function Test-AzPolicySetDefinition {
     [string] $OutputFormat = 'NUnitXml'
   )
 
-  # Test files
-  $DefinitionStructureTestFilePath = join-path $PSScriptRoot 'policySetDefStructure.tests.ps1'
-  Write-Verbose "Policy Initiative Pester Test file Path: '$DefinitionStructureTestFilePath'" -verbose
-  $testContainerData = @{
-    path        = $Path
-    excludePath = $ExcludePath
+  Begin {
+    # Test files
+    $DefinitionStructureTestFilePath = join-path $PSScriptRoot 'policySetDefStructure.tests.ps1'
+    Write-Verbose "Policy Initiative Pester Test file Path: '$DefinitionStructureTestFilePath'" -verbose
   }
 
-  # Create Pester configuration
-  $container = New-PesterContainer -Path $DefinitionStructureTestFilePath -Data $testContainerData
-  $config = New-PesterConfiguration
-  $config.Run.Container = $container
-  $config.Run.PassThru = $true
-  $config.Output.verbosity = 'Detailed'
-  $config.TestResult.Enabled = $true
-  $config.TestResult.TestSuiteName = 'JPolicy Initiative Tests'
-  $config.should.ErrorAction = 'Continue'
+  Process {
+    $testContainerData = @{
+      path        = $Path
+      excludePath = $ExcludePath
+    }
 
-  # Configure Pester test result output based on parameter set name
-  if ($PSCmdlet.ParameterSetName -eq 'ProduceOutputFile') {
-    $config.TestResult.OutputFormat = $OutputFormat
-    $config.TestResult.OutputPath = $OutputFile
-  } else {
-    $config.TestResult.Enabled = $false
+    # Create Pester configuration
+    $container = New-PesterContainer -Path $DefinitionStructureTestFilePath -Data $testContainerData
+    $config = New-PesterConfiguration
+    $config.Run.Container = $container
+    $config.Run.PassThru = $true
+    $config.Output.verbosity = 'Detailed'
+    $config.TestResult.Enabled = $true
+    $config.TestResult.TestSuiteName = 'JPolicy Initiative Tests'
+    $config.should.ErrorAction = 'Continue'
+
+    # Configure Pester test result output based on parameter set name
+    if ($PSCmdlet.ParameterSetName -eq 'ProduceOutputFile') {
+      $config.TestResult.OutputFormat = $OutputFormat
+      $config.TestResult.OutputPath = $OutputFile
+    } else {
+      $config.TestResult.Enabled = $false
+    }
+
+    # Configure Pester to exclude tags if present
+    if ($ExcludeTags.count -gt 0) {
+      $config.Filter.ExcludeTag = $ExcludeTags
+    }
+
+    # Invoke Pester
+    Invoke-Pester -Configuration $config
   }
-
-  # Configure Pester to exclude tags if present
-  if ($ExcludeTags.count -gt 0) {
-    $config.Filter.ExcludeTag = $ExcludeTags
-  }
-
-  # Invoke Pester
-  Invoke-Pester -Configuration $config
 }
 
 Function GetRelativeFilePath {
@@ -183,9 +198,9 @@ Function GetRelativeFilePath {
   Param (
     [Parameter(Mandatory = $true)]
     [ValidateScript({ Test-Path $_ })]
-    [String]$Path
+    [String] $Path
   )
-  #Try to get git root directory
+  # Try to get git root directory
   if ((Get-Item $Path).PSIsContainer) {
     $gitRoot = GetGitRoot -path $Path
   } else {
@@ -204,31 +219,37 @@ Function GetGitRoot {
   Param (
     [Parameter(Mandatory = $true, ValueFromPipeline = $true, HelpMessage = 'Specify the folder path.')]
     [ValidateScript({ Test-Path $_ -PathType Container })]
-    [String]$Path
+    [String] $Path
   )
-  #store the current Directory in a variable
-  $currentDir = $pwd
 
-  #Change the working directory to the specified path
-  Set-Location $Path
-
-  #Check if the current directory is inside a git repository
-  try {
-    $isGitRepo = Invoke-Expression -Command 'git rev-parse --is-inside-work-tree 2>&1' -ErrorAction SilentlyContinue
-  } catch {
-    $isGitRepo = 'false'
+  Begin {
+    # Store the current Directory in a variable
+    $currentDir = $pwd
   }
-  if ($isGitRepo -eq 'true') {
-    #Get the root directory of the git repository
-    $gitRootDir = Invoke-expression -Command 'git rev-parse --show-toplevel 2>&1' -ErrorAction SilentlyContinue
-    if (Test-Path $gitRootDir) {
-      $gitRootDir = Convert-Path $gitRootDir
+
+  Process {
+
+    # Change the working directory to the specified path
+    Set-Location $Path
+
+    # Check if the current directory is inside a git repository
+    try {
+      $isGitRepo = Invoke-Expression -Command 'git rev-parse --is-inside-work-tree 2>&1' -ErrorAction SilentlyContinue
+    } catch {
+      $isGitRepo = 'false'
     }
-  } else {
-    Write-Verbose "The specified path '$Path' is not inside a git repository or git command tool is not installed."
-  }
+    if ($isGitRepo -eq 'true') {
+      #Get the root directory of the git repository
+      $gitRootDir = Invoke-expression -Command 'git rev-parse --show-toplevel 2>&1' -ErrorAction SilentlyContinue
+      if (Test-Path $gitRootDir) {
+        $gitRootDir = Convert-Path $gitRootDir
+      }
+    } else {
+      Write-Verbose "The specified path '$Path' is not inside a git repository or git command tool is not installed."
+    }
 
-  #Change the working directory back to the original directory
-  Set-Location $currentDir
-  $gitRootDir
+    # Change the working directory back to the original directory
+    Set-Location $currentDir
+    $gitRootDir
+  }
 }
