@@ -10,7 +10,7 @@ function CountPolicyDefinitionReferenceId {
     [object] $policySetObject,
     [string] $policyDefinitionReferenceId
   )
-  $policy = $policySetObject.properties.policyDefinitions | where-object { $_.policyDefinitionReferenceId -ieq $policyDefinitionReferenceId }
+  $policy = $policySetObject.properties.policyDefinitions | Where-Object -FilterScript {$_.policyDefinitionReferenceId -ieq $policyDefinitionReferenceId}
   $policy.count
 }
 
@@ -65,7 +65,7 @@ if ((Get-Item $path).PSIsContainer) {
   # -Exclude parameter in Get-ChildItem only works on file name, not parent folder name hence it's not used in get-childitem
   if ($excludePath) {
     $excludePath = $excludePath -join '|'
-    $files = $files | where-object { $_.FullName -notmatch $excludePath }
+    $files = $files | Where-Object -FilterScript {$_.FullName -notmatch $excludePath}
   }
 } else {
   Write-Verbose "Specified path '$path' is a file"
@@ -303,7 +303,7 @@ Foreach ($file in $files) {
         }
 
         It -Name 'Parameter [<parameterName>] default value must be a member of allowed values' -TestCases (
-          $parameterTestCase | where-Object {
+          $parameterTestCase | Where-Object -FilterScript {
             $_.parameterConfig.PSObject.properties.name -icontains 'allowedValues' -and
             $_.parameterConfig.PSObject.properties.name -icontains 'defaultValue'
           }
@@ -443,7 +443,7 @@ Foreach ($file in $files) {
           }
 
           It -Name "Passed-in Parameter [<passedInParameter>] in $policyDefTestTitle must be defined in the Initiative Parameters" -TestCases (
-            $parameterIsDefinedTestCase | where-object {$_.valueExpectedFromInitiativeParameters -eq $true}
+            $parameterIsDefinedTestCase | Where-Object -FilterScript {$_.valueExpectedFromInitiativeParameters -eq $true}
           ) -Tag 'PolicyDefinitionParameterIsDefined' -Test {
             param(
               [string] $parameterName,
