@@ -224,23 +224,23 @@ Function GetGitRoot {
 
   Begin {
     # Store the current Directory in a variable
-    $currentDir = $pwd
+    $currentDir = [string] $pwd
   }
 
   Process {
     # Change the working directory to the specified path
-    Set-Location $Path
+    Set-Location -Path $Path
 
     # Check if the current directory is inside a git repository
     try {
-      $isGitRepo = Invoke-Expression -Command 'git rev-parse --is-inside-work-tree 2>&1' -ErrorAction SilentlyContinue
+      $isGitRepo = [string](& 'git' 'rev-parse' '--is-inside-work-tree' 2>$null)
     } catch {
-      $isGitRepo = 'false'
+      $isGitRepo = [string] 'false'
     }
     if ($isGitRepo -eq 'true') {
       # Get the root directory of the git repository
-      $gitRootDir = Invoke-expression -Command 'git rev-parse --show-toplevel 2>&1' -ErrorAction SilentlyContinue
-      if (Test-Path $gitRootDir) {
+      $gitRootDir = [string](& 'git' 'rev-parse' '--show-toplevel' 2>&1)
+      if (Test-Path -PathType 'Container' -Path $gitRootDir) {
         $gitRootDir = Convert-Path $gitRootDir
       }
     } else {
@@ -248,7 +248,7 @@ Function GetGitRoot {
     }
 
     # Change the working directory back to the original directory
-    Set-Location $currentDir
+    Set-Location -Path $currentDir
     $gitRootDir
   }
 }

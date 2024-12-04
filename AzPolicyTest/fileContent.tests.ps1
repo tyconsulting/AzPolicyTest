@@ -38,7 +38,9 @@ foreach ($file in $files) {
 Describe 'File Existence Test' -Tag 'JsonFileExists' {
   Context 'JSON files Should Exist' {
     It 'File count should be greater than 0' -TestCases $script:fileCountTestCase {
-      param($files)
+      param(
+        $files
+      )
       $files.count | should -Not -Be 0
     }
   }
@@ -47,7 +49,9 @@ Describe 'File Existence Test' -Tag 'JsonFileExists' {
 Describe 'JSON File Syntax Test' -Tag 'JsonSyntax' {
   Context 'JSON Syntax Test' {
     It '[<fileRelativePath>] Should be a valid JSON file' -TestCases $script:jsonFilesTestCases {
-      param($fileName, $filePath)
+      param(
+        [string] $filePath
+      )
       $fileContent = Get-Content -Path $filePath -Raw
       ConvertFrom-Json -InputObject $fileContent -ErrorVariable parseError
       $parseError | Should -Be $Null

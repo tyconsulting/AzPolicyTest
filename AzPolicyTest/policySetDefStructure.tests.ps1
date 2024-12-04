@@ -296,7 +296,6 @@ Foreach ($file in $files) {
 
         It -Name "Parameter [<parameterName>] must contain 'type' element" -TestCases $parameterTestCase -Tag 'ParameterTypeExists' -Test {
           param(
-            [string] $parameterName,
             [object] $parameterConfig
           )
           $parameterConfig.PSobject.Properties.name -cmatch 'type' | Should -Not -Be $null
@@ -309,7 +308,6 @@ Foreach ($file in $files) {
           }
         ) -Tag 'ParameterDefaultValueValid' -Test {
           param(
-            [string] $parameterName,
             [object] $parameterConfig
           )
           if ($parameterConfig.allowedValues) {
@@ -327,7 +325,6 @@ Foreach ($file in $files) {
 
         It -Name "Parameter [<parameterName>] must have a valid value for the 'type' element" -TestCases $parameterTestCase -Tag 'ParameterTypeValid' -Test {
           param(
-            [string] $parameterName,
             [object] $parameterConfig
           )
           $ValidParameterTypes -contains $parameterConfig.type.tolower() | Should -Be $true
@@ -335,7 +332,6 @@ Foreach ($file in $files) {
 
         It -Name "Parameter [<parameterName>] metadata must contain 'displayName' element" -TestCases $parameterTestCase -Tag 'ParameterDisplayNameExists' -Test {
           param(
-            [string] $parameterName,
             [object] $parameterConfig
           )
           $parameterConfig.metadata.PSobject.Properties.name -cmatch 'displayName' | Should -Not -Be $null
@@ -343,7 +339,6 @@ Foreach ($file in $files) {
 
         It -Name "Parameter [<parameterName>] metadata must contain 'description' element" -TestCases $parameterTestCase -Tag 'ParameterDescriptionExists' -Test {
           param(
-            [string] $parameterName,
             [object] $parameterConfig
           )
           $parameterConfig.metadata.PSobject.Properties.name -cmatch 'description' | Should -Not -Be $null
@@ -351,7 +346,6 @@ Foreach ($file in $files) {
 
         It -Name 'Parameter [<parameterName>] must not be unused' -TestCases $parameterTestCase -Tag 'ParameterNotUnused' -Test {
           param(
-            [string] $parameterName,
             [boolean] $parameterInUse
           )
           $parameterInUse | Should -Be $true
@@ -405,8 +399,7 @@ Foreach ($file in $files) {
 
         It -Name "'policyDefinitionReferenceId' in $policyDefTestTitle must be only used One (1) time" -TestCases $policyDefinitionTestCase -Tag 'noDuplicatePolicyDefinitionReferenceId' -Test {
           param(
-            [object] $policyDefinition,
-            [int]$policyDefinitionReferenceIdCount
+            [int] $policyDefinitionReferenceIdCount
           )
           $policyDefinitionReferenceIdCount | Should -Be 1
         }
@@ -446,8 +439,7 @@ Foreach ($file in $files) {
             $parameterIsDefinedTestCase | Where-Object -FilterScript {$_.valueExpectedFromInitiativeParameters -eq $true}
           ) -Tag 'PolicyDefinitionParameterIsDefined' -Test {
             param(
-              [string] $parameterName,
-              [object] $parameterConfig
+              [bool] $parameterIsDefined
             )
             $parameterIsDefined | Should -Be $true
           }

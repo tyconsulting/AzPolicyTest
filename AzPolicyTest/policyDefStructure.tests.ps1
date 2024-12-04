@@ -312,7 +312,6 @@ foreach ($file in $files) {
 
         It -Name "Parameter [<parameterName>] must contain 'type' element" -TestCases $parameterTestCase -Tag 'ParameterTypeExists' -Test {
           param(
-            [string] $parameterName,
             [object] $parameterConfig
           )
           $parameterConfig.PSobject.Properties.name -cmatch 'type' | Should -Not -Be $null
@@ -325,7 +324,6 @@ foreach ($file in $files) {
           }
         ) -Tag 'ParameterDefaultValueValid' -Test {
           param(
-            [string] $parameterName,
             [object] $parameterConfig
           )
           if ($parameterConfig.allowedValues) {
@@ -343,7 +341,6 @@ foreach ($file in $files) {
 
         It -Name "Parameter [<parameterName>] must have a valid value for the 'type' element" -TestCases $parameterTestCase -Tag 'ParameterTypeValid' -Test {
           param(
-            [string] $parameterName,
             [object] $parameterConfig
           )
           $ValidParameterTypes -contains $parameterConfig.type | Should -Be $true
@@ -351,7 +348,6 @@ foreach ($file in $files) {
 
         It -Name "Parameter [<parameterName>] metadata must contain 'displayName' element" -TestCases $parameterTestCase -Tag 'ParameterDisplayNameExists' -Test {
           param(
-            [string] $parameterName,
             [object] $parameterConfig
           )
           $parameterConfig.metadata.PSobject.Properties.name -cmatch 'displayName' | Should -Not -Be $null
@@ -359,7 +355,6 @@ foreach ($file in $files) {
 
         It -Name "Parameter [<parameterName>] metadata must contain 'description' element" -TestCases $parameterTestCase -Tag 'ParameterDescriptionExists' -Test {
           param(
-            [string] $parameterName,
             [object] $parameterConfig
           )
           $parameterConfig.metadata.PSobject.Properties.name -cmatch 'description' | Should -Not -Be $null
@@ -385,7 +380,6 @@ foreach ($file in $files) {
     Context 'Policy Effect Test' -Tag 'PolicyEffect' {
       It -Name 'Policy Rule should have parameterised effect' -TestCases $testCase -Tag 'PolicyEffectParameterised' -Test {
         param(
-          [object] $json,
           [hashtable] $policyEffect
         )
         $policyEffect.isHardCoded | Should -Be $false
@@ -395,7 +389,6 @@ foreach ($file in $files) {
         $testCase | Where-Object -FilterScript {$_.policyEffect.isHardCoded -eq $false }
       ) -Tag 'PolicyEffectParameterContainsDisabled' -Test {
         param(
-          [object] $json,
           [hashtable] $policyEffect
         )
         $policyEffect.effects -contains 'Disabled' | Should -Be $true
@@ -405,7 +398,6 @@ foreach ($file in $files) {
         $testCase | Where-Object -FilterScript {$_.policyEffect.isHardCoded -eq $false }
       ) -Tag 'PolicyEffectParameterHasDefaultValue' -Test {
         param(
-          [object] $json,
           [hashtable] $policyEffect
         )
         $policyEffect.defaultEffectValue | Should -Not -Be $null
@@ -413,7 +405,6 @@ foreach ($file in $files) {
 
       It -Name 'Policy Rule must use a valid effect' -Tag 'PolicyEffectIsValid' -TestCases $testCase -Test {
         param(
-          [object] $json,
           [hashtable] $policyEffect
         )
         $policyEffect.effects.Where{
@@ -425,7 +416,7 @@ foreach ($file in $files) {
         $testCase | Where-Object -FilterScript {$_.policyEffect.effects -contains 'Deny'}
       ) -Tag 'PolicyDenyEffectAlsoSupportAudit' -Test {
         param(
-          [object] $json
+          [hashtable] $policyEffect
         )
         $policyEffect.effects -contains 'Audit' | Should -Be $true
       }
@@ -434,7 +425,7 @@ foreach ($file in $files) {
         $testCase | Where-Object -FilterScript {$_.policyEffect.effects -contains 'Audit'}
       ) -Tag 'PolicyAuditEffectAlsoSupportDeny' -Test {
         param(
-          [object] $json
+          [hashtable] $policyEffect
         )
         $policyEffect.effects -contains 'Deny' | Should -Be $true
       }
