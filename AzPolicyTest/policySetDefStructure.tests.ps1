@@ -370,9 +370,10 @@ Foreach ($file in $files) {
 
         $policyDefinitionTestCase = @{
           policyDefinition                 = $policyDefinition
+        }
+        $policyDefinitionReferenceIdCountTestCase = @{
           policyDefinitionReferenceIdCount = CountPolicyDefinitionReferenceId -policySetObject $json -policyDefinitionReferenceId $policyDefinition.policyDefinitionReferenceId
         }
-
         It -Name "$policyDefTestTitle must contain 'policyDefinitionId' element" -TestCases $policyDefinitionTestCase -Tag 'PolicyDefinitionIdExists' -Test {
           param(
             [object] $policyDefinition
@@ -401,7 +402,7 @@ Foreach ($file in $files) {
           $policyDefinition.policyDefinitionReferenceId.length | Should -BeGreaterThan 0
         }
 
-        It -Name "'policyDefinitionReferenceId' in $policyDefTestTitle must be only used One (1) time" -TestCases $policyDefinitionTestCase -Tag 'noDuplicatePolicyDefinitionReferenceId' -Test {
+        It -Name "'policyDefinitionReferenceId' in $policyDefTestTitle must be only used One (1) time" -TestCases $policyDefinitionReferenceIdCountTestCase -Tag 'noDuplicatePolicyDefinitionReferenceId' -Test {
           param(
             [int] $policyDefinitionReferenceIdCount
           )
