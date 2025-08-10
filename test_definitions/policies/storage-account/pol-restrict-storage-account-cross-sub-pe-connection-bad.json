@@ -1,0 +1,54 @@
+{
+  "name": "pol-restrict-storage-account-cross-sub-pe-connection",
+  "properties": {
+    "displayName": "Prevent cross-subscription Private Link for Azure Storage Account",
+    "description": "This policy prevents cross-subscription private link connection for Azure Storage Account.",
+    "metadata": {
+      "category": "Storage",
+      "version": "1.0.0",
+      "preview": false,
+      "depreciated": false
+    },
+    "mode": "All",
+    "parameters": {
+      "effect": {
+        "type": "string",
+        "metadata": {
+          "description": "Enable or disable the execution of the audit policy.",
+          "displayName": "Effect"
+        },
+        "allowedValues": [
+          "Audit",
+          "Deny",
+          "Disabled"
+        ],
+        "defaultValue": "Audit"
+      }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Storage/storageAccounts/privateEndpointConnections"
+          },
+          {
+            "anyOf": [
+              {
+                "exists": false,
+                "field": "Microsoft.Storage/storageAccounts/privateEndpointConnections/privateEndpoint.id"
+              },
+              {
+                "field": "Microsoft.Storage/storageAccounts/privateEndpointConnections/privateEndpoint.id",
+                "notLike": "[concat('/subscriptions/', subscription().subscriptionId, '/*')]"
+              }
+            ]
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

@@ -252,3 +252,14 @@ Function GetGitRoot {
     $gitRootDir
   }
 }
+
+Function GetKnownLimitations {
+  $file = Join-Path $PSScriptRoot 'AzPolicyTest.limitations.jsonc'
+  if (Test-Path $file) {
+    $content = Get-Content $file -Raw | ConvertFrom-Json -AsHashtable -Depth 5
+    return $content
+  } else {
+    Write-Verbose "Limitations file not found: $file"
+    return $null
+  }
+}

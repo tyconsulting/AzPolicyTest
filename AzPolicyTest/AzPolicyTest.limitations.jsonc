@@ -1,0 +1,35 @@
+{
+  //List known limitations documented from the Azure Policy repo https://github.com/azure/azure-policy?tab=readme-ov-file#known-issues
+  "passThroughARMResourceRegex": [
+    //https://github.com/azure/azure-policy?tab=readme-ov-file#provider-pass-through-to-non-azure-resource-manager-resources
+    //and
+    //https://github.com/azure/azure-policy?tab=readme-ov-file#resources-that-are-exempt-from-policy-evaluation
+    "(?i)^Microsoft\\.Web\\/sites\\/deployments$",
+    "(?i)^Microsoft\\.Web\\/sites\\/functions$",
+    "(?i)^Microsoft\\.Web\\/sites\\/instances\\/deployments$",
+    "(?i)^Microsoft\\.Web\\/sites\\/siteextensions$",
+    "(?i)^Microsoft\\.Web\\/sites\\/slots\\/deployments$",
+    "(?i)^Microsoft\\.Web\\/sites\\/slots\\/functions$",
+    "(?i)^Microsoft\\.Web\\/sites\\/slots\\/instances\\/deployments$",
+    "(?i)^Microsoft\\.Web\\/sites\\/slots\\/siteextensions$",
+    "(?i)^Microsoft\\.Web\\/sites\\/sourcecontrols$",
+    "(?i)^Microsoft\\.Web\\/sites\\/slots\\/sourcecontrols$",
+    "(?i)^Microsoft\\.Web\\/sites\\/privateaccess$",
+    "(?i)^Microsoft\\.Resources\\/\\S+",
+    "(?i)^Microsoft\\.Billing\\/\\S+",
+    "(?i)^Microsoft\\.Capacity\\/reservationOrders\\/\\S+",
+    "(?i)^Microsoft\\.Help\\/\\S+",
+    "(?i)^Microsoft\\.Diagnostics\\/\\S+"
+  ],
+  "aliasesBypassPolicyRegex": [
+    //https://github.com/azure/azure-policy?tab=readme-ov-file#optional-or-auto-generated-resource-property-that-bypasses-policy-evaluation
+    //except for Microsoft.Storage/storageAccounts/networkAcls.defaultAction
+    "(?i)^microsoft\\.\\S+\\/\\S+\\/privateEndpointConnections(\\[\\*\\]){0,1}",
+    "(?i)^Microsoft\\.Authorization\\/roleAssignments\\/principalType$",
+    "(?i)^Microsoft\\.Compute\\/virtualMachines\\/storageProfile\\.osDisk\\.osType$",
+    "(?i)^Microsoft\\.Compute\\/virtualMachines\\/storageProfile\\.osDisk\\.diskSizeGB$",
+    "(?i)^Microsoft\\.Compute\\/virtualMachineScaleSets\\/virtualMachineProfile\\.storageProfile\\.osDisk\\.diskSizeGB$",
+    "(?i)^Microsoft\\.Compute\\/virtualMachineScaleSets\\/virtualMachines\\/storageProfile\\.osDisk\\.diskSizeGB$",
+    "(?i)^Microsoft\\.Authorization\\/roleAssignmentScheduleInstances\\/\\S+"
+  ]
+}

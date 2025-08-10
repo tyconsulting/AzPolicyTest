@@ -180,6 +180,18 @@
           "description": "Specifies when the existence of the related resources should be evaluated. The delay is only used for evaluations that are a result of a create or update resource request. Allowed values are AfterProvisioning, AfterProvisioningSuccess, AfterProvisioningFailure, or an ISO 8601 duration between 0 and 360 minutes."
         },
         "defaultValue": "AfterProvisioning"
+      },
+      "restrictCrossSubPeEffect": {
+        "type": "string",
+        "metadata": {
+          "displayName": "Prevent cross-subscription Private Link for Azure Storage Account",
+          "description": "Enable or disable the execution of the audit policy."
+        },
+        "allowedValues": [
+          "Audit",
+          "Disabled"
+        ],
+        "defaultValue": "Audit"
       }
     },
     "policyDefinitionGroups": [
@@ -222,7 +234,7 @@
     ],
     "policyDefinitions": [
       {
-        "policyDefinitionReferenceId": "pol-audit-storage-account-should-prevent-shared-key-access",
+        "policyDefinitionReferenceId": "STG-01",
         "policyDefinitionId": "{policyLocationResourceId}/providers/Microsoft.Authorization/policyDefinitions/pol-audit-storage-account-should-prevent-shared-key-access",
         "parameters": {
           "effect": {
@@ -236,7 +248,7 @@
         ]
       },
       {
-        "policyDefinitionReferenceId": "pol-audit-storage-account-use-double-encryption",
+        "policyDefinitionReferenceId": "STG-02",
         "policyDefinitionId": "{policyLocationResourceId}/providers/Microsoft.Authorization/policyDefinitions/pol-audit-storage-account-use-double-encryption",
         "parameters": {
           "effect": {
@@ -248,7 +260,7 @@
         ]
       },
       {
-        "policyDefinitionReferenceId": "pol-deny-storage-account-minimum-tls-version",
+        "policyDefinitionReferenceId": "STG-03",
         "policyDefinitionId": "{policyLocationResourceId}/providers/Microsoft.Authorization/policyDefinitions/pol-deny-storage-account-minimum-tls-version",
         "parameters": {
           "effect": {
@@ -265,7 +277,7 @@
         ]
       },
       {
-        "policyDefinitionReferenceId": "pol-deny-storage-account-prevent-cross-tenant-repl",
+        "policyDefinitionReferenceId": "STG-04",
         "policyDefinitionId": "{policyLocationResourceId}/providers/Microsoft.Authorization/policyDefinitions/pol-deny-storage-account-prevent-cross-tenant-repl",
         "parameters": {
           "effect": {
@@ -279,7 +291,7 @@
         ]
       },
       {
-        "policyDefinitionReferenceId": "pol-deny-storage-account-public-endpoint",
+        "policyDefinitionReferenceId": "STG-05",
         "policyDefinitionId": "{policyLocationResourceId}/providers/Microsoft.Authorization/policyDefinitions/pol-deny-storage-account-public-endpoint",
         "parameters": {
           "effect": {
@@ -291,7 +303,7 @@
         ]
       },
       {
-        "policyDefinitionReferenceId": "pol-deny-storage-account-restrict-virtual-network-rules",
+        "policyDefinitionReferenceId": "STG-06",
         "policyDefinitionId": "{policyLocationResourceId}/providers/Microsoft.Authorization/policyDefinitions/pol-deny-storage-account-restrict-virtual-network-rules",
         "parameters": {
           "effect": {
@@ -305,7 +317,7 @@
         ]
       },
       {
-        "policyDefinitionReferenceId": "pol-deny-storage-account-secure-transfer",
+        "policyDefinitionReferenceId": "STG-07",
         "policyDefinitionId": "{policyLocationResourceId}/providers/Microsoft.Authorization/policyDefinitions/pol-deny-storage-account-secure-transfer",
         "parameters": {
           "effect": {
@@ -318,7 +330,7 @@
         ]
       },
       {
-        "policyDefinitionReferenceId": "pol-deny-storage-accounts-should-restrict-network-access",
+        "policyDefinitionReferenceId": "STG-08",
         "policyDefinitionId": "{policyLocationResourceId}/providers/Microsoft.Authorization/policyDefinitions/pol-deny-storage-accounts-should-restrict-network-access",
         "parameters": {
           "effect": {
@@ -332,7 +344,7 @@
         ]
       },
       {
-        "policyDefinitionReferenceId": "pol-deploy-storage-account-advanced-threat-protection",
+        "policyDefinitionReferenceId": "STG-09",
         "policyDefinitionId": "{policyLocationResourceId}/providers/Microsoft.Authorization/policyDefinitions/pol-deploy-storage-account-advanced-threat-protection",
         "parameters": {
           "effect": {
@@ -348,7 +360,7 @@
         ]
       },
       {
-        "policyDefinitionReferenceId": "pol-deploy-storage-account-blob-soft-delete",
+        "policyDefinitionReferenceId": "STG-10",
         "policyDefinitionId": "{policyLocationResourceId}/providers/Microsoft.Authorization/policyDefinitions/pol-deploy-storage-account-blob-soft-delete",
         "parameters": {
           "effect": {
@@ -362,6 +374,20 @@
           },
           "allowPermanentDelete": {
             "value": "[parameters('blobSoftDeleteAllowPermanentDelete')]"
+          }
+        },
+        "groupNames": [
+          "ISO27001-2013_A.12.3.1",
+          "ISO27001-2013_A.17.1.1",
+          "ISO27001-2013_A.17.1.2"
+        ]
+      },
+      {
+        "policyDefinitionReferenceId": "STG-11",
+        "policyDefinitionId": "{policyLocationResourceId}/providers/Microsoft.Authorization/policyDefinitions/pol-restrict-storage-account-cross-sub-pe-connection",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('restrictCrossSubPeEffect')]"
           }
         },
         "groupNames": [
