@@ -1,6 +1,9 @@
 {
   "recommendations": [
     "EditorConfig.EditorConfig",
-    "ms-vscode.powershell"
+    "ms-vscode.powershell",
+    "redhat.vscode-yaml",
+    "eamodio.gitlens",
+    "DavidAnson.vscode-markdownlint",
   ]
 }

@@ -2,4 +2,20 @@
   "powershell.codeFormatting.preset": "OTBS",
   "powershell.scriptAnalysis.settingsPath": ".vscode/PSScriptAnalyzerSettings.psd1",
   "powershell.scriptAnalysis.enable": true,
+  "files.insertFinalNewline": true,
+  "editor.tabSize": 2,
+  "editor.formatOnSave": true,
+  "editor.insertSpaces": true,
+  "editor.detectIndentation": false,
+  "yaml.format.singleQuote": true,
+  "yaml.format.enable": true,
+  "yaml.format.bracketSpacing": true,
+  "[powershell]": {
+    "editor.formatOnSave": true,
+    "editor.tabSize": 2
+  },
+  "git.branchProtection": [
+    "main",
+    "master"
+  ]
 }

@@ -3,7 +3,7 @@
 [CmdletBinding()]
 Param (
   [Parameter(Mandatory = $true)]
-  [ValidateScript({Test-Path -Path $_})]
+  [ValidateScript({ Test-Path -Path $_ })]
   [string] $Path,
 
   [Parameter(Mandatory = $false)]
@@ -11,6 +11,7 @@ Param (
 )
 Write-Verbose "Path: '$Path'"
 
+#Function to determine the policy effect from the definition
 function GetPolicyEffect {
   param(
     [object] $policyObject
@@ -41,6 +42,85 @@ function GetPolicyEffect {
     }
   }
   $result
+}`
+
+#function to extract all the policy aliases from a policy definition
+function GetPolicyAliases {
+  [OutputType([System.Array])]
+  param(
+    [object] $policyObject
+  )
+  $fieldRegex = '(?i)\"field\"\:\s{0,1}\"(microsoft\.\S+\/\S+\/\S+)"'
+  $ifCondition = $policyObject.properties.policyRule.if | ConvertTo-Json -depth 99
+  $policyAliases = @()
+  $fieldMatches = Select-String -Pattern $fieldRegex -InputObject $ifCondition -AllMatches
+  foreach ($match in $fieldMatches.Matches) {
+    $policyAliases += $match.Groups[1].Value
+  }
+  $policyAliases = $policyAliases | Sort-Object -Unique
+  , $policyAliases
+}
+
+#function to extract all the resource types from a policy definition
+function GetPolicyResourceTypes {
+  [OutputType([System.Array])]
+  param(
+    [object] $policyObject
+  )
+  $typeBlockRegex = '(?i)\{\"field"\:\s{0,1}\"type\",[^\}]+\}|\{[^\{]+,\"field"\:\s{0,1}\"type\"\}'
+  $typeRegex = '(?i)\"(microsoft\.[^\"\,]+)\"'
+  $ifCondition = $policyObject.properties.policyRule.if | ConvertTo-Json -depth 99 -Compress
+  $types = @()
+  $typeMatches = Select-String -Pattern $typeBlockRegex -InputObject $ifCondition -AllMatches
+  foreach ($match in $typeMatches.Matches) {
+    $typeBlock = $match.Groups[0].Value
+    $typeMatch = Select-String -Pattern $typeRegex -InputObject $typeBlock -AllMatches
+    foreach ($tm in $typeMatch.Matches) {
+      $types += $tm.Groups[1].Value
+    }
+  }
+  $types = $types | sort-object -Unique
+  , $types
+}
+
+#Check if the policy definition is referencing a resource type that's been bypassed by the policy engine
+function getBypassedTypes {
+  [OutputType([System.Array])]
+  param(
+    [object] $policyObject
+  )
+  $byPassedTypes = @()
+  $knownLimitations = GetKnownLimitations
+  $bypassedTypesRegex = $knownLimitations.passThroughARMResourceRegex
+  $typesUsedByPolicy = GetPolicyResourceTypes -policyObject $policyObject
+  foreach ($t in $typesUsedByPolicy) {
+    foreach ($regex in $bypassedTypesRegex) {
+      if ($t -imatch $regex) {
+        $byPassedTypes += $t
+      }
+    }
+  }
+  , $byPassedTypes
+}
+
+#check if the policy definition is referencing any bypassed resource aliases
+function getBypassedAliases {
+  [OutputType([System.Array])]
+  param(
+    [object] $policyObject
+  )
+  $byPassedAliases = @()
+  $knownLimitations = GetKnownLimitations
+  $bypassedAliasesRegex = $knownLimitations.aliasesBypassPolicyRegex
+  $aliasesUsedByPolicy = GetPolicyAliases -policyObject $policyObject
+  foreach ($a in $aliasesUsedByPolicy) {
+    foreach ($regex in $bypassedAliasesRegex) {
+      if ($a -imatch $regex) {
+        $byPassedAliases += $a
+      }
+    }
+  }
+  , $byPassedAliases
 }
 
 # Get JSON files
@@ -55,7 +135,7 @@ if ((Get-Item $path).PSIsContainer) {
   # -Exclude parameter in Get-ChildItem only works on file name, not parent folder name hence it's not used in get-childitem
   if ($ExcludePath) {
     $ExcludePath = $ExcludePath -join '|'
-    $files = $files | Where-Object -FilterScript {$_.FullName -notmatch $ExcludePath }
+    $files = $files | Where-Object -FilterScript { $_.FullName -notmatch $ExcludePath }
   }
 
 } else {
@@ -76,6 +156,8 @@ foreach ($file in $files) {
     json             = $json
     policyEffect     = GetPolicyEffect -policyObject $json
     fileRelativePath = $fileRelativePath
+    bypassedTypes    = getBypassedTypes -policyObject $json
+    bypassedAliases  = getBypassedAliases -policyObject $json
   }
   Write-Verbose "[$file] Policy Effect: $($testCase.policyEffect.effects)"
 
@@ -168,7 +250,12 @@ foreach ($file in $files) {
         )
         $json.name -match '[<>*%&:\\?.+\/]' | Should -Be $false
       }
-
+      It -Name 'Resource Type must be supported by Azure Policy' -TestCases $testCase -Tag 'ResourceTypeSupported' -Test {
+        param(
+          [array] $bypassedTypes
+        )
+        $bypassedTypes.count | Should -Be 0 -because "The following resource types used in the policy are not supported: $($bypassedTypes -join ', ')"
+      }
     }
 
     Context 'Policy Definition Properties Value Test' -Tag 'PolicyProperties' {
@@ -197,7 +284,7 @@ foreach ($file in $files) {
         param(
           [object] $json
         )
-        $json.properties.displayName.substring($json.properties.displayName.length -1, 1) | Should -Not -Be '.'
+        $json.properties.displayName.substring($json.properties.displayName.length - 1, 1) | Should -Not -Be '.'
       }
 
       It -Name "Properties must contain 'description' element" -TestCases $testCase -Tag 'DescriptionExists' -Test {
@@ -334,7 +421,7 @@ foreach ($file in $files) {
             if ($parameterConfig.type -ieq 'array') {
               $allInAllowedValues = $true
               foreach ($d in $parameterConfig.defaultValue) {
-                if ($parameterConfig.allowedValues -notcontains $d) {$allInAllowedValues = $false}
+                if ($parameterConfig.allowedValues -notcontains $d) { $allInAllowedValues = $false }
               }
               $allInAllowedValues | Should -Be $true
             } else {
@@ -390,7 +477,7 @@ foreach ($file in $files) {
       }
 
       It -Name "Policy Rule parameterised effect should contain 'Disabled' effect" -TestCases (
-        $testCase | Where-Object -FilterScript {$_.policyEffect.isHardCoded -eq $false }
+        $testCase | Where-Object -FilterScript { $_.policyEffect.isHardCoded -eq $false }
       ) -Tag 'PolicyEffectParameterContainsDisabled' -Test {
         param(
           [hashtable] $policyEffect
@@ -399,7 +486,7 @@ foreach ($file in $files) {
       }
 
       It -Name 'Policy Rule parameterised effect should have a default value' -TestCases (
-        $testCase | Where-Object -FilterScript {$_.policyEffect.isHardCoded -eq $false }
+        $testCase | Where-Object -FilterScript { $_.policyEffect.isHardCoded -eq $false }
       ) -Tag 'PolicyEffectParameterHasDefaultValue' -Test {
         param(
           [hashtable] $policyEffect
@@ -411,31 +498,41 @@ foreach ($file in $files) {
         param(
           [hashtable] $policyEffect
         )
-        $policyEffect.effects.Where({$_ -in $ValidEffects},'First').'Count' | Should -BeExactly 1
+        $policyEffect.effects.Where({ $_ -in $ValidEffects }, 'First').'Count' | Should -BeExactly 1
       }
 
-      It -Name "Policy rule with 'Deny' effect must also support 'Audit' Effect" -TestCases (
-        $testCase | Where-Object -FilterScript {$_.policyEffect.effects -contains 'Deny'}
+      It -Name "Policy rule with 'Deny' effect and does not contain auto-generated properties must also support 'Audit' Effect" -TestCases (
+        $testCase | Where-Object -FilterScript { $_.policyEffect.effects -contains 'Deny' -and $_.bypassedAliases.Count -eq 0 }
       ) -Tag 'PolicyDenyEffectAlsoSupportAudit' -Test {
         param(
           [hashtable] $policyEffect
         )
-        $policyEffect.effects -contains 'Audit' | Should -Be $true
+        $policyEffect.effects -contains 'Audit' | Should -Be $true -Because "The policy rule does not contain auto generated and bypassed properties, therefore it should support both 'Audit' and 'Deny' effect."
       }
 
-      It -Name "Policy rule with 'Audit' effect must also support 'Deny' Effect" -TestCases (
-        $testCase | Where-Object -FilterScript {$_.policyEffect.effects -contains 'Audit'}
+      It -Name "Policy rule with 'Audit' effect and contains auto-generated properties must not support 'Deny' Effect" -TestCases (
+        $testCase | Where-Object -FilterScript { $_.policyEffect.effects -contains 'Audit' -and $_.bypassedAliases.Count -gt 0 }
+      ) -Tag 'PolicyAutoGeneratedPropertyWithDenyEffect' -Test {
+        param(
+          [hashtable] $policyEffect,
+          [array] $bypassedAliases
+        )
+        $policyEffect.effects -contains 'Deny' | Should -Be $false -Because "The policy rule contains the following auto-generated and bypassed properties, therefore it should not support 'Deny' effect: $($bypassedAliases -join ', ')"
+      }
+
+      It -Name "Policy rule with 'Audit' effect and does not contain auto-generated properties must also support 'Deny' Effect" -TestCases (
+        $testCase | Where-Object -FilterScript { $_.policyEffect.effects -contains 'Audit' -and $_.bypassedAliases.Count -eq 0 }
       ) -Tag 'PolicyAuditEffectAlsoSupportDeny' -Test {
         param(
           [hashtable] $policyEffect
         )
-        $policyEffect.effects -contains 'Deny' | Should -Be $true
+        $policyEffect.effects -contains 'Deny' | Should -Be $true -Because "The policy rule does not contain auto generated and bypassed properties, therefore it should support both 'Audit' and 'Deny' effect."
       }
     }
 
     Context 'Non DeployIfNotExists or Modify Effect Policy Configuration Test' -Tag NonDINEorModifyConfig {
       It -Name "Policy rule must not contain a 'roleDefinitionIds' element" -TestCases (
-        $testCase | Where-Object -FilterScript {$_.policyEffect.effects -notcontains 'DeployIfNotExists' -and $_.policyEffect.effects -notcontains 'Modify'}
+        $testCase | Where-Object -FilterScript { $_.policyEffect.effects -notcontains 'DeployIfNotExists' -and $_.policyEffect.effects -notcontains 'Modify' }
       ) -Tag 'NonDINEorModifyRoleDefinition' -Test {
         param(
           [object] $json
@@ -446,7 +543,7 @@ foreach ($file in $files) {
 
     Context 'DeployIfNotExists Effect Policy Configuration Test' -Tag 'DINEConfig' {
       It -Name "Policy rule 'then' element Must contain a 'details' element" -TestCases (
-        $testCase | Where-Object -FilterScript {$_.policyEffect.effects -contains 'DeployIfNotExists'}
+        $testCase | Where-Object -FilterScript { $_.policyEffect.effects -contains 'DeployIfNotExists' }
       ) -Tag 'DINEDetails' -Test {
         param(
           [object] $json
@@ -455,7 +552,7 @@ foreach ($file in $files) {
       }
 
       It -Name "Policy rule must contain a embedded 'deployment' element" -TestCases (
-        $testCase | Where-Object -FilterScript {$_.policyEffect.effects -contains 'DeployIfNotExists'}
+        $testCase | Where-Object -FilterScript { $_.policyEffect.effects -contains 'DeployIfNotExists' }
       ) -Tag 'DINEDeployment' -Test {
         param(
           [object] $json
@@ -464,7 +561,7 @@ foreach ($file in $files) {
       }
 
       It -Name "Deployment mode for the policy rule must be 'incremental'" -TestCases (
-        $testCase | Where-Object -FilterScript {$_.policyEffect.effects -contains 'DeployIfNotExists'}
+        $testCase | Where-Object -FilterScript { $_.policyEffect.effects -contains 'DeployIfNotExists' }
       ) -Tag 'DINEIncrementalDeployment' -Test {
         param(
           [object] $json
@@ -473,7 +570,7 @@ foreach ($file in $files) {
       }
 
       It -Name "Policy rule must contain a 'evaluationDelay' element" -TestCases (
-        $testCase | Where-Object -FilterScript {$_.policyEffect.effects -contains 'DeployIfNotExists'}
+        $testCase | Where-Object -FilterScript { $_.policyEffect.effects -contains 'DeployIfNotExists' }
       ) -Tag 'DINEEvaluationDelay' -Test {
         param(
           [object] $json
@@ -482,7 +579,7 @@ foreach ($file in $files) {
       }
 
       It -Name "Policy rule must contain a 'existenceCondition' element" -TestCases (
-        $testCase | Where-Object -FilterScript {$_.policyEffect.effects -contains 'DeployIfNotExists'}) -Tag 'DINEExistenceCondition' -Test {
+        $testCase | Where-Object -FilterScript { $_.policyEffect.effects -contains 'DeployIfNotExists' }) -Tag 'DINEExistenceCondition' -Test {
         param(
           [object] $json
         )
@@ -502,7 +599,7 @@ foreach ($file in $files) {
       }
 
       It -Name "Policy rule must contain a 'roleDefinitionIds' element" -TestCases (
-        $testCase | Where-Object -FilterScript {$_.policyEffect.effects -contains 'DeployIfNotExists'}
+        $testCase | Where-Object -FilterScript { $_.policyEffect.effects -contains 'DeployIfNotExists' }
       ) -Tag 'DINERoleDefinition' -Test {
         param(
           [object] $json
@@ -511,7 +608,7 @@ foreach ($file in $files) {
       }
 
       It -Name "'roleDefinitionIds' element must contain at least one item" -TestCases (
-        $testCase | Where-Object -FilterScript {$_.policyEffect.effects -contains 'DeployIfNotExists'}
+        $testCase | Where-Object -FilterScript { $_.policyEffect.effects -contains 'DeployIfNotExists' }
       ) -Tag 'DINERoleDefinitionCount' -Test {
         param(
           [object] $json
@@ -522,7 +619,7 @@ foreach ($file in $files) {
 
     Context 'DeployIfNotExists Effect Policy Embedded ARM Template Test' -Tag 'DINETemplate' {
       It -Name 'Embedded template Must have a valid schema' -TestCases (
-        $testCase | Where-Object -FilterScript {$_.policyEffect.effects -contains 'DeployIfNotExists'}
+        $testCase | Where-Object -FilterScript { $_.policyEffect.effects -contains 'DeployIfNotExists' }
       ) -Tag 'DINETemplateSchema' -Test {
         param(
           [object] $json
@@ -531,7 +628,7 @@ foreach ($file in $files) {
       }
 
       It -Name 'Embedded template Must contain a valid contentVersion' -TestCases (
-        $testCase | Where-Object -FilterScript {$_.policyEffect.effects -contains 'DeployIfNotExists'}
+        $testCase | Where-Object -FilterScript { $_.policyEffect.effects -contains 'DeployIfNotExists' }
       ) -Tag 'DINETemplateContentVersion' -Test {
         param(
           [object] $json
@@ -540,7 +637,7 @@ foreach ($file in $files) {
       }
 
       It -Name "Embedded template Must contain a 'parameters' element" -TestCases (
-        $testCase | Where-Object -FilterScript {$_.policyEffect.effects -contains 'DeployIfNotExists'}
+        $testCase | Where-Object -FilterScript { $_.policyEffect.effects -contains 'DeployIfNotExists' }
       ) -Tag 'DINETemplateParameters' -Test {
         param(
           [object] $json
@@ -549,7 +646,7 @@ foreach ($file in $files) {
       }
 
       It -Name "Embedded template Must contain a 'variables' element" -TestCases (
-        $testCase | Where-Object -FilterScript {$_.policyEffect.effects -contains 'DeployIfNotExists'}
+        $testCase | Where-Object -FilterScript { $_.policyEffect.effects -contains 'DeployIfNotExists' }
       ) -Tag 'DINETemplateVariables' -Test {
         param(
           [object] $json
@@ -558,7 +655,7 @@ foreach ($file in $files) {
       }
 
       It -Name "Embedded template Must contain a 'resources' element" -TestCases (
-        $testCase | Where-Object -FilterScript {$_.policyEffect.effects -contains 'DeployIfNotExists'}
+        $testCase | Where-Object -FilterScript { $_.policyEffect.effects -contains 'DeployIfNotExists' }
       ) -Tag 'DINETemplateResources' -Test {
         param(
           [object] $json
@@ -567,7 +664,7 @@ foreach ($file in $files) {
       }
 
       It -Name "Embedded template Must contain a 'outputs' element" -TestCases (
-        $testCase | Where-Object -FilterScript {$_.policyEffect.effects -contains 'DeployIfNotExists'}
+        $testCase | Where-Object -FilterScript { $_.policyEffect.effects -contains 'DeployIfNotExists' }
       ) -Tag 'DINETemplateOutputs' -Test {
         param(
           [object] $json
@@ -578,7 +675,7 @@ foreach ($file in $files) {
 
     Context 'Modify Effect Configuration Test' -Tag 'ModifyConfig' {
       It -Name "Policy rule 'then' element Must contain a 'details' element" -TestCases (
-        $testCase | Where-Object -FilterScript {$_.policyEffect.effects -contains 'Modify'}
+        $testCase | Where-Object -FilterScript { $_.policyEffect.effects -contains 'Modify' }
       )  -Tag 'ModifyDetails' -Test {
         param(
           [object] $json
@@ -587,7 +684,7 @@ foreach ($file in $files) {
       }
 
       It -Name "Policy rule must contain a 'roleDefinitionIds' element" -TestCases (
-        $testCase | Where-Object -FilterScript {$_.policyEffect.effects -contains 'Modify'}
+        $testCase | Where-Object -FilterScript { $_.policyEffect.effects -contains 'Modify' }
       ) -Tag 'ModifyRoleDefinition' -Test {
         param(
           [object] $json
@@ -596,7 +693,7 @@ foreach ($file in $files) {
       }
 
       It -Name "'roleDefinitionIds' element must contain at least one item" -TestCases (
-        $testCase | Where-Object -FilterScript {$_.policyEffect.effects -contains 'Modify'}
+        $testCase | Where-Object -FilterScript { $_.policyEffect.effects -contains 'Modify' }
       ) -Tag 'ModifyRoleDefinitionCount' -Test {
         param(
           [object] $json
@@ -605,7 +702,7 @@ foreach ($file in $files) {
       }
 
       It -Name "Policy rule must contain a 'conflictEffect' element" -TestCases (
-        $testCase | Where-Object -FilterScript {$_.policyEffect.effects -contains 'Modify'}
+        $testCase | Where-Object -FilterScript { $_.policyEffect.effects -contains 'Modify' }
       ) -Tag 'ModifyConflictEffect' -Test {
         param(
           [object] $json
@@ -614,7 +711,7 @@ foreach ($file in $files) {
       }
 
       It -Name "'conflictEffect' element must have a valid value" -TestCases (
-        $testCase | Where-Object -FilterScript {$_.policyEffect.effects -contains 'Modify'}
+        $testCase | Where-Object -FilterScript { $_.policyEffect.effects -contains 'Modify' }
       ) -Tag 'ModifyConflictEffectValid' -Test {
         param(
           [object] $json
@@ -623,7 +720,7 @@ foreach ($file in $files) {
       }
 
       It -Name "Policy rule must contain an 'operations' element" -TestCases (
-        $testCase | Where-Object -FilterScript {$_.policyEffect.effects -contains 'Modify'}
+        $testCase | Where-Object -FilterScript { $_.policyEffect.effects -contains 'Modify' }
       ) -Tag 'ModifyOperations' -Test {
         param(
           [object] $json
@@ -634,7 +731,7 @@ foreach ($file in $files) {
 
     Context 'AuditIfNotExists Effect Configuration Test' -Tag 'AuditIfNotExistsConfig' {
       It -Name "Policy rule 'then' element Must contain a 'details' element" -TestCases (
-        $testCase | Where-Object -FilterScript {$_.policyEffect.effects -contains 'AuditIfNotExists'}
+        $testCase | Where-Object -FilterScript { $_.policyEffect.effects -contains 'AuditIfNotExists' }
       ) -Tag 'AINEDetails' -Test {
         param(
           [object] $json
@@ -643,7 +740,7 @@ foreach ($file in $files) {
       }
 
       It -Name "Policy rule must contain a 'evaluationDelay' element" -TestCases (
-        $testCase | Where-Object -FilterScript {$_.policyEffect.effects -contains 'AuditIfNotExists'}
+        $testCase | Where-Object -FilterScript { $_.policyEffect.effects -contains 'AuditIfNotExists' }
       ) -Tag 'AINEEvaluationDelay' -Test {
         param(
           [object] $json
@@ -652,7 +749,7 @@ foreach ($file in $files) {
       }
 
       It -Name "Policy rule must contain a 'existenceCondition' element" -TestCases (
-        $testCase | Where-Object -FilterScript {$_.policyEffect.effects -contains 'AuditIfNotExists'}
+        $testCase | Where-Object -FilterScript { $_.policyEffect.effects -contains 'AuditIfNotExists' }
       ) -Tag 'AINEExistenceCondition' -Test {
         param(
           [object] $json
