@@ -15,7 +15,7 @@
     "(?i)^Microsoft\\.Web\\/sites\\/sourcecontrols$",
     "(?i)^Microsoft\\.Web\\/sites\\/slots\\/sourcecontrols$",
     "(?i)^Microsoft\\.Web\\/sites\\/privateaccess$",
-    "(?i)^Microsoft\\.Resources\\/\\S+",
+    "(?i)^Microsoft\\.Resources\\/(?!(subscriptions$|subscriptions\\/resourcegroups$))\\S+",
     "(?i)^Microsoft\\.Billing\\/\\S+",
     "(?i)^Microsoft\\.Capacity\\/reservationOrders\\/\\S+",
     "(?i)^Microsoft\\.Help\\/\\S+",
